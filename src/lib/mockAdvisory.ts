@@ -1,5 +1,5 @@
 import { FarmSubmissionPayload } from '../types/farm';
-import { AgronomicAdvisoryReport, MetricEvaluation, WeatherSynthesis } from '../types/advisory';
+import { AgronomicAdvisoryReport, MetricEvaluation, WeatherSynthesis, IdentifiedProblem } from '../types/advisory';
 import { SevenDayWeatherData } from './weatherService';
 import { getCropLabel, getStageLabel } from './cropStages';
 
@@ -141,20 +141,72 @@ export function generateMockAdvisoryReport(
     );
   }
 
+  // 0 & 2. Primary Problem Diagnosis & Concrete Medicine/Fertilizer Resolution
+  const problemLower = (payload.mainProblem || '').toLowerCase();
+  const isWeedProblem = problemLower.includes('alaq') || problemLower.includes('ot') || problemLower.includes('weed');
+  const isYellowingProblem = problemLower.includes('saral') || problemLower.includes('azot') || problemLower.includes('nitrogen') || problemLower.includes('yellow');
+  const isPestProblem = problemLower.includes('zərərverici') || problemLower.includes('pest') || problemLower.includes('qurd') || problemLower.includes('həşərat') || problemLower.includes('mənənə');
+
+  let identifiedProblem: IdentifiedProblem = {
+    problemTitle: isAz ? `${crop} Bitkisində Fenoloji Qidalanma və Zərərverici Riski` : `${crop} Phenological Nutrition & Stress Prevention`,
+    severity: 'moderate',
+    causeAnalysis: isAz
+      ? `${stage} inkişaf mərhələsində bitkinin nizamlı qidalanması və torpaq nəmliyi təmin edilməlidir, əks halda məhsul itkisi baş verə bilər.`
+      : `Balanced nutrition and moisture management are critical during ${stage} to maintain yield potential and prevent abiotic stress.`,
+    solutionPlan: isAz
+      ? 'Tövsiyə olunan tədbir: Karbamid (Urea 46% N) və Ammofos (12-52 MAP) ilə kök qidalandırması aparın; alaq otlarına və xəstəliklərə qarşı profilaktik sahə monitorinqini davam etdirin.'
+      : 'Recommended protocol: Apply Urea (46% N) and MAP (12-52) root nourishment; maintain preventative scouting for weeds and fungal vectors.',
+  };
+
+  if (isWeedProblem) {
+    identifiedProblem = {
+      problemTitle: isAz ? 'Sahədə İntensiv Alaq Otu Basması və Su-Qida Rəqabəti' : 'Intensive Weed Infestation & Moisture Competition',
+      severity: 'critical' as const,
+      causeAnalysis: isAz
+        ? 'Sahədə sıx bitən yabanı alaq otları əsas bitkinin torpaqdakı azot, fosfor və nəmlik ehtiyatını mənimsəyir, günəş şüalanmasını və fotosintezi məhdudlaşdırır.'
+        : 'Dense weed emergence consumes bioavailable nitrogen and soil moisture, shading crop foliage and stunting vegetative expansion.',
+      solutionPlan: isAz
+        ? 'Dərmanlama və aqrotexniki plan: Cərgəaralarında herbisid tətbiqi aparın — ümumi alaqlar üçün qoruyucu başlıqla "Qlifosat 480 q/l" (3 l/ha) və ya torpaq nəmli ikən selektiv "Pendimetalin 330 EC" (4 l/ha). 4-5 gün sonra cərgəarası kultivasiya ilə torpağı yumşaldın.'
+        : 'Herbicide & cultural eradication plan: Apply inter-row herbicide with protective drift shields — Glyphosate 480 g/L (3 L/ha) or selective Pendimethalin 330 EC (4 L/ha) on moist soil; follow with mechanical inter-row cultivation 4-5 days later.',
+    };
+  } else if (isYellowingProblem) {
+    identifiedProblem = {
+      problemTitle: isAz ? 'Aşağı Yarpaqlarda Azot Çatışmazlığı və Xloroz' : 'Basal Nitrogen Deficiency & Vegetative Chlorosis',
+      severity: 'critical' as const,
+      causeAnalysis: isAz
+        ? 'İntensiv inkişaf fazasında azot ehtiyatının tükənməsi və ya suvarma ilə dərindən yuyulması səbəbilə xlorofil sintezi zəifləyir.'
+        : 'Depletion or subsoil leaching of bioavailable nitrate during rapid canopy expansion, inhibiting chlorophyll synthesis.',
+      solutionPlan: isAz
+        ? 'Gübrələmə planı: Təcili olaraq Karbamid (Urea 46% N) gübrəsini 80-100 kq/ha normasında suvarma suyu (fertiqasiya) ilə verin və 1%-li Karbamid məhlulu (1 kq/100 l su) ilə yarpaqdan çiləmə aparın.'
+        : 'Fertilization intervention: Top-dress Urea (46% N) at 80-100 kg/ha via irrigation fertigation and perform foliar 1% urea spray (1 kg/100 L water) for rapid nitrogen uptake.',
+    };
+  } else if (isPestProblem) {
+    identifiedProblem = {
+      problemTitle: isAz ? 'Sorucu Zərərverici və Həşərat Təzyiqi' : 'Sucking Insect Vector & Foliage Pest Pressure',
+      severity: 'critical' as const,
+      causeAnalysis: isAz
+        ? 'İsti və quru hava şəraitində cavan şirəli zoğlarda mənənə və trips populyasiyası iqtisadi ziyan həddini aşa bilər.'
+        : 'Dry conditions and succulent new foliage accelerate aphid and thrips multiplication beyond economic thresholds.',
+      solutionPlan: isAz
+        ? 'Dərmanlama planı: Təsdiqlənmiş insektisid preparatı ilə çiləmə aparın — "İmidakloprid 200 q/l" (0.25 l/ha) və ya "Asetamiprid 20 SP" (0.2 kq/ha). Çiləməni səhər küləksiz saatlarda 250 l/ha su ilə həyata keçirin.'
+        : 'Pesticide intervention: Deploy calibrated foliar insecticide — Imidacloprid 200 g/L (0.25 L/ha) or Acetamiprid 20 SP (0.2 kg/ha) in calm early morning hours using 250 L/ha water.',
+    };
+  }
+
   return {
-    id: `AGM-${Math.floor(100000 + Math.random() * 900000)}`,
+    id: `agro-report-${Date.now()}`,
     createdAt: new Date().toISOString(),
     farmProfile: {
-      region,
-      district: payload.district || (isAz ? 'Qeyd edilməyib' : 'Unspecified District'),
-      farmAreaHectares: payload.farmAreaHectares ?? undefined,
+      region: payload.region || 'Aran',
+      district: payload.district || (isAz ? 'Yevlax' : 'Yevlakh'),
+      farmAreaHectares: payload.farmAreaHectares,
       crop,
       growthStage: stage,
-      soilType: payload.soilType || 'Unknown / Unsure',
-      soilMode: payload.soilMode || (hasSoilMetrics ? 'manual' : 'upload'),
+      soilType: payload.soilType,
+      soilMode: payload.soilMode || 'manual',
       soilMetrics: payload.soilMetrics,
-      irrigationMethod: payload.irrigationMethod || 'Not Specified',
-      waterSource: payload.waterSource || 'Not Specified',
+      irrigationMethod: payload.irrigationMethod,
+      waterSource: payload.waterSource,
       mainProblem:
         payload.mainProblem ||
         (isAz
@@ -165,23 +217,24 @@ export function generateMockAdvisoryReport(
     },
     overallHealthScore: hasSoilMetrics ? 82 : 74,
     summaryDiagnosis: isAz
-      ? `${region} bölgəsində ${crop} bitkisinin ${stage} inkişaf mərhələsi üzrə aqronomik təhlili. Qida maddələrinin mənimsənilməsi hədəfli azot yemləməsi və balanslaşdırılmış suvarma ilə təmin oluna bilər.`
-      : `Field evaluation for ${crop} during the ${stage} window in ${region}. Nutrient bioavailability is manageable with targeted nitrogen supplementation and balanced moisture intervals.`,
+      ? `${region} bölgəsində ${crop} bitkisinin ${stage} inkişaf mərhələsi üzrə aqronomik təhlili. Əsas aşkar edilən məsələ: ${identifiedProblem.problemTitle}. ${identifiedProblem.causeAnalysis}`
+      : `Field evaluation for ${crop} during the ${stage} window in ${region}. Primary observation: ${identifiedProblem.problemTitle}. ${identifiedProblem.causeAnalysis}`,
     mainFindings: isAz
       ? [
-          `Bitki hazırda ${stage} mərhələsindədir; bu faza davamlı və nizamlı qida təminatı tələb edir.`,
+          `Bitki hazırda ${stage} mərhələsindədir; əsas aşkar edilən məsələ: ${identifiedProblem.problemTitle}.`,
+          `Həlli Planı: ${identifiedProblem.solutionPlan}`,
           hasSoilMetrics
-            ? 'Torpaq pH göstəricisi neytral mühiti göstərir; çiçəkləmə və kütləvi böyümədən əvvəl azot ehtiyatı təmin olunmalıdır.'
-            : 'Laboratoriya analizi olmadığından torpağın yuyulmasının qarşısını almaq üçün gübrə hissə-hissə verilməlidir.',
-          `Fermerin qeyd etdiyi "${payload.mainProblem || 'məhsuldarlıq'}" məsələsi mərhələli aqrotexniki və qidalanma tədbirləri ilə aradan qaldırıla bilər.`,
+            ? 'Torpaq göstəriciləri neytral diapazondadır; gübrələməni bitkinin aktiv kök zonasına yönləndirin.'
+            : 'Laboratoriya analizi olmadığından kimyəvi preparatlar və gübrələr ehtiyatlı hissəvi dozalarla verilməlidir.',
         ]
       : [
-          `Crop is currently in ${stage}, a sensitive vegetative-to-reproductive phase requiring sustained nutrient bioavailability.`,
+          `Crop is currently in ${stage} phase; diagnosed challenge: ${identifiedProblem.problemTitle}.`,
+          `Action Plan: ${identifiedProblem.solutionPlan}`,
           hasSoilMetrics
-            ? 'Soil pH indicates neutral conditions; nitrogen levels require replenishment before peak flowering/tillering.'
-            : 'Lack of lab soil testing necessitates split applications to prevent nutrient toxicity or leaching.',
-          `Primary reported concern regarding "${payload.mainProblem || 'crop performance'}" is addressed through phased cultural and nutritional controls.`,
+            ? 'Soil metrics indicate manageable baseline; orient nutrient placement directly to active root zone.'
+            : 'Unverified soil metrics require conservative split applications to safeguard groundwater.',
         ],
+    identifiedProblem,
     cropSpecificGuidance: {
       optimalTemperature: isAz
         ? '18°C – 28°C Gündüz / 14°C – 18°C Gecə'
@@ -220,11 +273,11 @@ export function generateMockAdvisoryReport(
         {
           nutrient: isAz ? 'Azot (N)' : 'Nitrogen (N)',
           fertilizerType: isAz
-            ? 'Karbamid (Urea 46-0-0) və ya Ammonium Nitrat'
-            : 'Urea (46-0-0) or Calcium Ammonium Nitrate (CAN)',
+            ? 'Karbamid (Urea 46% N) və ya Ammonium Nitrat (34.4% N)'
+            : 'Urea (46% N) or Calcium Ammonium Nitrate (CAN)',
           timing: isAz ? 'Səhər tezdən suvarma öncəsi hissəli yemləmə' : 'Early morning split top-dress',
           estimatedRate: hasSoilMetrics
-            ? '60 - 80 kg/ha'
+            ? '80 - 120 kg/ha'
             : isAz
             ? 'Ehtiyatlı ilkin norma'
             : 'Conservative baseline only',
@@ -233,11 +286,11 @@ export function generateMockAdvisoryReport(
         {
           nutrient: isAz ? 'Fosfor (P2O5)' : 'Phosphorus (P2O5)',
           fertilizerType: isAz
-            ? 'Ammofos / Diammonium Fosfat (DAP 18-46-0)'
-            : 'Diammonium Phosphate (DAP 18-46-0)',
-          timing: isAz ? 'Kökətrafı lentvari tətbiq' : 'Localized band placement if required',
+            ? 'Ammofos (MAP 12-52) və ya Diammonium Fosfat (DAP 18-46)'
+            : 'Monoammonium Phosphate (MAP 12-52) or DAP (18-46)',
+          timing: isAz ? 'Kökətrafı lentvari tətbiq və ya fertiqasiya' : 'Localized band placement or fertigation',
           estimatedRate: hasSoilMetrics
-            ? '30 - 45 kg/ha'
+            ? '40 - 60 kg/ha'
             : isAz
             ? 'Laboratoriya təsdiqi tələb olunur'
             : 'Lab verification needed',
@@ -264,7 +317,7 @@ export function generateMockAdvisoryReport(
         description: isAz
           ? 'Laboratoriya sınağından keçmiş mineral gübrələr və xüsusi qarışıqlar üçün AgroSphere aqromarketində birbaşa təchizatçılarla əlaqə saxlayın.'
           : 'Connect directly with certified agricultural input distributors on the AgroSphere marketplace for laboratory-tested fertilizers and custom mineral blends.',
-        destinationUrl: 'https://agrosphere.org/marketplace/fertilizers',
+        destinationUrl: 'https://www.aqrosphere.com/',
         serviceType: 'fertilizer',
         callToActionText: isAz
           ? 'Uyğun Gübrələri AgroSphere-də İncələyin'
@@ -323,6 +376,26 @@ export function generateMockAdvisoryReport(
             'Neem seed kernel extract (NSKE 5%) or mineral oil foliar spray at initial spotting.',
             'Beneficial entomopathogenic fungi (Beauveria bassiana) during humid evenings.',
           ],
+      specificTreatments: isWeedProblem
+        ? [
+            {
+              targetIssue: isAz ? 'Birtillik və çoxillik alaq otları (pıtraq, qanqal, vələmir)' : 'Annual & perennial weeds (cocklebur, thistle, wild oats)',
+              medicineName: isAz ? 'Herbisid: Qlifosat 480 q/l (və ya selektiv Pendimetalin 330 EC)' : 'Herbicide: Glyphosate 480 g/L (or selective Pendimethalin 330 EC)',
+              applicationMethod: isAz ? '250 l/ha su ilə cərgəarası qoruyucu başlıqla çiləmə (əsas bitkiyə təmas etmədən)' : 'Inter-row shielded spray with 250 L/ha water volume without touching crop canopy',
+            },
+          ]
+        : [
+            {
+              targetIssue: isAz ? 'Sorucu zərərvericilər və mənənə' : 'Sucking insect pests and aphids',
+              medicineName: isAz ? 'İnsektisid: İmidakloprid 200 q/l (Konfidor tipli)' : 'Insecticide: Imidacloprid 200 g/L (Confidor type)',
+              applicationMethod: isAz ? 'Səhər erkən sakit havada 0.25 l/ha norma ilə yarpaqdan çiləmə' : 'Foliar spray at 0.25 L/ha during early calm morning',
+            },
+            {
+              targetIssue: isAz ? 'Yarpaq ləkəliliyi və göbələk xəstəlikləri' : 'Leaf blight and fungal pathogens',
+              medicineName: isAz ? 'Funqisid: Azoksistrobin + Difenokonazol (və ya 1%-li Bordos mayesi)' : 'Fungicide: Azoxystrobin + Difenoconazole (or 1% Bordeaux mixture)',
+              applicationMethod: isAz ? 'Yağıntıdan sonrakı rütubətli şəraitdə 0.5 l/ha norma ilə çiləmə' : 'Foliar spray at 0.5 L/ha following damp conditions',
+            },
+          ],
       agroSphereLink: {
         title: isAz
           ? 'AgroSphere-də Bitki Mühafizə Vasitələri ilə Tanış Olun'
@@ -330,7 +403,7 @@ export function generateMockAdvisoryReport(
         description: isAz
           ? 'Lisenziyalı bioloji preparatlar və inteqrasiya olunmuş zərərverici mühafizə vasitələrini AgroSphere təchizatçılarından əldə edin.'
           : 'Review licensed organic bio-fungicides and integrated pest management supplies available through verified suppliers on AgroSphere.',
-        destinationUrl: 'https://agrosphere.org/marketplace/plant-protection',
+        destinationUrl: 'https://www.aqrosphere.com/',
         serviceType: 'protection',
         callToActionText: isAz
           ? 'Bitki Mühafizə Məhsullarına Baxın'

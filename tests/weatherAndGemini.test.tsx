@@ -112,4 +112,26 @@ describe('Gemini Advisor & Weather Engine Integration', () => {
 
     process.env.GEMINI_API_KEY = originalKey;
   });
+
+  it('diagnoses primary weed infestation problem and prescribes concrete herbicide medicines and solution plan', () => {
+    const report = generateMockAdvisoryReport(
+      {
+        crop: 'Cotton',
+        region: 'Aran',
+        mainProblem: 'Sahəni intensiv alaq otu basıb, məhsul inkişafdan qalır',
+      },
+      'az'
+    );
+
+    expect(report.identifiedProblem).toBeDefined();
+    expect(report.identifiedProblem?.problemTitle).toContain('Alaq Otu Basması');
+    expect(report.identifiedProblem?.solutionPlan).toContain('Qlifosat');
+    expect(report.plantProtection.specificTreatments).toBeDefined();
+    expect(report.plantProtection.specificTreatments?.[0].medicineName).toContain('Herbisid');
+
+    // Verify AgroSphere destination link is updated to https://www.aqrosphere.com/
+    expect(report.fertilizerAdvisory.agroSphereLink?.destinationUrl).toBe('https://www.aqrosphere.com/');
+    expect(report.plantProtection.agroSphereLink?.destinationUrl).toBe('https://www.aqrosphere.com/');
+  });
 });
+

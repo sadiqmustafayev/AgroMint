@@ -1,8 +1,6 @@
-'use client';
-
 import React from 'react';
-import { ShieldCheck, Bug, Flower2 } from 'lucide-react';
-import { AgroSphereOutboundLink } from '../../types/advisory';
+import { ShieldCheck, Bug, Flower2, Pill } from 'lucide-react';
+import { AgroSphereOutboundLink, SpecificTreatment } from '../../types/advisory';
 import { DataBadge } from '../shared/DataBadge';
 import { AgroSphereLink } from '../shared/AgroSphereLink';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -11,6 +9,7 @@ interface PlantProtectionData {
   diagnosedStressors: string[];
   preventativeControls: string[];
   organicInterventions: string[];
+  specificTreatments?: SpecificTreatment[];
   agroSphereLink?: AgroSphereOutboundLink;
 }
 
@@ -86,6 +85,34 @@ export function PlantProtectionCard({
               <li key={idx}>{o}</li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {/* Targeted Specific Medicines, Herbicides, Insecticides & Active Ingredients */}
+      {plantProtection.specificTreatments && plantProtection.specificTreatments.length > 0 && (
+        <div className="mt-4 space-y-2 rounded-xl border border-rose-200/90 bg-rose-50/40 p-3.5 text-xs">
+          <div className="flex items-center gap-1.5 font-bold text-rose-950">
+            <Pill className="w-4 h-4 text-rose-600" />
+            <span>
+              {t('dashboard.treatmentSectionTitle') ||
+                'Tövsiyə Olunan Dərman və Preparat Adları (Dəqiq Dozalanma ilə):'}
+            </span>
+          </div>
+          <div className="divide-y divide-rose-100 rounded-lg border border-rose-200/60 bg-white shadow-xs">
+            {plantProtection.specificTreatments.map((tr, idx) => (
+              <div key={idx} className="p-3 space-y-1">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-bold text-slate-900">{tr.medicineName}</span>
+                  <span className="rounded bg-rose-100 px-2 py-0.5 text-[10px] font-semibold text-rose-800">
+                    {tr.targetIssue}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  <strong className="font-semibold text-slate-700">Tətbiq qaydası:</strong> {tr.applicationMethod}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

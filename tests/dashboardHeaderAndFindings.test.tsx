@@ -42,15 +42,14 @@ describe('Dashboard Header and Finding Cards', () => {
     expect(screen.getByText(/Pomegranate/i)).toBeInTheDocument();
   });
 
-  it('renders MainFindingsCard with health score and diagnosis', () => {
+  it('renders MainFindingsCard with diagnosis and observations without arbitrary health index', () => {
     render(
       <MainFindingsCard
-        healthScore={84}
         summaryDiagnosis="Good vegetative vigor with localized nitrogen limitation."
         findings={['Optimal canopy aeration', 'Split top-dressing recommended']}
       />
     );
-    expect(screen.getByText(/84/i)).toBeInTheDocument();
+    expect(screen.queryByText(/84\/100/i)).not.toBeInTheDocument();
     expect(screen.getByText(/Good vegetative vigor/i)).toBeInTheDocument();
     expect(screen.getByText(/AI Assessment/i)).toBeInTheDocument();
   });

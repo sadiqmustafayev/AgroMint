@@ -35,6 +35,19 @@ export interface WeatherSynthesis {
   sprayWindowRecommendation: string;
 }
 
+export interface IdentifiedProblem {
+  problemTitle: string;
+  severity: 'critical' | 'moderate' | 'mild';
+  causeAnalysis: string;
+  solutionPlan: string;
+}
+
+export interface SpecificTreatment {
+  targetIssue: string;
+  medicineName: string;
+  applicationMethod: string;
+}
+
 export interface AgronomicAdvisoryReport {
   id: string;
   createdAt: string;
@@ -42,6 +55,7 @@ export interface AgronomicAdvisoryReport {
   overallHealthScore: number; // 0-100
   summaryDiagnosis: string;
   mainFindings: string[];
+  identifiedProblem?: IdentifiedProblem;
   cropSpecificGuidance: {
     optimalTemperature: string;
     stageManagement: string;
@@ -75,6 +89,7 @@ export interface AgronomicAdvisoryReport {
     diagnosedStressors: string[];
     preventativeControls: string[];
     organicInterventions: string[];
+    specificTreatments?: SpecificTreatment[];
     agroSphereLink?: AgroSphereOutboundLink;
   };
   actionSteps: RecommendationAction[];

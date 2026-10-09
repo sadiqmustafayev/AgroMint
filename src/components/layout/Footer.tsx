@@ -75,7 +75,7 @@ export function Footer() {
             </p>
             <div className="mt-3">
               <a
-                href="https://agrosphere.org"
+                href="https://www.aqrosphere.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 hover:text-emerald-800 hover:underline"
