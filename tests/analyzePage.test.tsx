@@ -24,7 +24,9 @@ describe('Analyze Page Component', () => {
 
     // Initially in loading state
     expect(
-      screen.getByText(/Synthesizing Field Observations & Scientific References/i)
+      screen.getByText(
+        /Synthesizing Field Observations & Scientific References|Sahə Məlumatları və Elmi Ədəbiyyat/i
+      )
     ).toBeInTheDocument();
 
     // Advance timers past loading duration
@@ -33,10 +35,18 @@ describe('Analyze Page Component', () => {
     });
 
     // Dashboard header and cards should now be rendered
-    expect(screen.getByText(/Agronomic Intelligence Dossier/i)).toBeInTheDocument();
-    expect(screen.getByText(/Executive Agronomic Assessment/i)).toBeInTheDocument();
-    expect(screen.getByText(/Fertilizer & Soil Amendment Plan/i)).toBeInTheDocument();
-    expect(screen.getByText(/Data Uncertainties & Information Gaps/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Agronomic Intelligence Dossier|Aqronomik Analitika Dosyesi/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Executive Agronomic Assessment/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Fertilizer & Soil Amendment Plan/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Data Uncertainties & Information Gaps/i)
+    ).toBeInTheDocument();
 
     vi.useRealTimers();
   });

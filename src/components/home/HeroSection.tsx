@@ -1,7 +1,12 @@
+'use client';
+
 import React from 'react';
 import { ArrowDown, Sprout, FileCheck2, ShieldAlert, Cpu } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export function HeroSection() {
+  const { t } = useLanguage();
+
   return (
     <section className="relative overflow-hidden pt-8 pb-12 sm:pt-14 sm:pb-16">
       {/* Decorative background glow */}
@@ -13,20 +18,19 @@ export function HeroSection() {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 rounded-full border border-mint-200 bg-mint-50/80 px-3.5 py-1 text-xs font-semibold text-mint-800 shadow-sm backdrop-blur">
           <Sprout className="h-3.5 w-3.5 text-mint-600" />
-          <span>Agricultural Intelligence Platform</span>
+          <span>{t('common.platformSubtitle')}</span>
           <span className="text-slate-300">•</span>
-          <span className="text-slate-600">Context-Aware Field Diagnostics</span>
+          <span className="text-slate-600">{t('hero.badge')}</span>
         </div>
 
         {/* Main Title */}
         <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl sm:leading-tight">
-          Context-Aware Agronomic Intelligence for Modern Farms
+          {t('hero.title')}
         </h1>
 
         {/* Subtitle */}
         <p className="mt-4 text-base text-slate-600 leading-relaxed sm:text-lg max-w-2xl mx-auto">
-          Receive tailored agricultural diagnostics and soil-calibrated recommendations by providing your field parameters.
-          Grounded in verified scientific references, not generic chatbot answers.
+          {t('hero.subtitle')}
         </p>
 
         {/* 3 Core Value Props */}
@@ -34,30 +38,30 @@ export function HeroSection() {
           <div className="rounded-xl border border-slate-200 bg-white/80 p-3.5 shadow-sm">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-900">
               <FileCheck2 className="w-4 h-4 text-mint-600" />
-              <span>Evidence-Based</span>
+              <span>{t('hero.evidenceBasedTitle')}</span>
             </div>
             <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
-              Synthesizes your soil tests, growth stage, and curated scientific literature.
+              {t('hero.evidenceBasedDesc')}
             </p>
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-white/80 p-3.5 shadow-sm">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-900">
               <Cpu className="w-4 h-4 text-mint-600" />
-              <span>Structured Diagnostics</span>
+              <span>{t('hero.structuredTitle')}</span>
             </div>
             <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
-              Executive 10-card advisory dossier instead of generic conversational bubbles.
+              {t('hero.structuredDesc')}
             </p>
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-white/80 p-3.5 shadow-sm">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-900">
               <ShieldAlert className="w-4 h-4 text-amber-600" />
-              <span>Safe Dosage Guards</span>
+              <span>{t('hero.safeDosageTitle')}</span>
             </div>
             <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
-              Transparent disclosure of data gaps to prevent chemical over-application.
+              {t('hero.safeDosageDesc')}
             </p>
           </div>
         </div>
@@ -68,7 +72,7 @@ export function HeroSection() {
             href="#farm-intake-section"
             className="inline-flex items-center gap-2 text-xs font-semibold text-mint-700 hover:text-mint-800 transition group"
           >
-            <span>Proceed directly to Farm Intake Wizard</span>
+            <span>{t('hero.scrollToForm')}</span>
             <ArrowDown className="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform" />
           </a>
         </div>

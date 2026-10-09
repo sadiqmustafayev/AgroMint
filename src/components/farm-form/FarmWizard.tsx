@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { ArrowLeft, ArrowRight, Sparkles, Shield, User, HelpCircle } from 'lucide-react';
 import { FarmSubmissionPayload, SoilMetrics } from '../../types/farm';
@@ -6,13 +8,7 @@ import { StepLocation } from './StepLocation';
 import { StepCrop } from './StepCrop';
 import { StepSoilWater } from './StepSoilWater';
 import { StepQuestionsMedia } from './StepQuestionsMedia';
-
-const STEP_TITLES = [
-  'Location & Field',
-  'Crop & Stage',
-  'Soil & Irrigation',
-  'Field Questions',
-];
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface FarmWizardProps {
   onSubmit: (payload: FarmSubmissionPayload) => void;
@@ -25,8 +21,16 @@ export function FarmWizard({
   isGuest = true,
   className = '',
 }: FarmWizardProps) {
+  const { t, language } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const stepTitles = [
+    t('wizard.step1'),
+    t('wizard.step2'),
+    t('wizard.step3'),
+    t('wizard.step4'),
+  ];
 
   // Form State
   const [region, setRegion] = useState('');
@@ -58,17 +62,24 @@ export function FarmWizard({
     setErrorMessage(null);
     if (step === 1) {
       if (!region.trim()) {
-        setErrorMessage('Please specify or select an Agricultural Region.');
+        setErrorMessage(
+          language === 'az'
+            ? 'Zəhmət olmasa Kənd Təsərrüfatı Regionunu qeyd edin və ya seçin.'
+            : 'Please specify or select an Agricultural Region.'
+        );
         return false;
       }
     }
     if (step === 2) {
       if (!crop.trim()) {
-        setErrorMessage('Please select a Crop to continue.');
+        setErrorMessage(
+          language === 'az'
+            ? 'Davam etmək üçün zəhmət olmasa Bitki növünü seçin.'
+            : 'Please select a Crop to continue.'
+        );
         return false;
       }
     }
-    // Steps 3 is fully optional; Step 4 requires mainProblem at final submission
     return true;
   };
 
@@ -88,17 +99,29 @@ export function FarmWizard({
 
     if (!region.trim()) {
       setCurrentStep(1);
-      setErrorMessage('Please specify an Agricultural Region.');
+      setErrorMessage(
+        language === 'az'
+          ? 'Zəhmət olmasa Kənd Təsərrüfatı Regionunu qeyd edin.'
+          : 'Please specify an Agricultural Region.'
+      );
       return;
     }
     if (!crop.trim()) {
       setCurrentStep(2);
-      setErrorMessage('Please select a Crop.');
+      setErrorMessage(
+        language === 'az'
+          ? 'Zəhmət olmasa Bitki növünü seçin.'
+          : 'Please select a Crop.'
+      );
       return;
     }
     if (!mainProblem.trim()) {
       setCurrentStep(4);
-      setErrorMessage('Please describe your main agricultural problem or inquiry.');
+      setErrorMessage(
+        language === 'az'
+          ? 'Zəhmət olmasa əsas aqrar probleminizi və ya sualınızı təsvir edin.'
+          : 'Please describe your main agricultural problem or inquiry.'
+      );
       return;
     }
 
@@ -134,20 +157,20 @@ export function FarmWizard({
               <Sparkles className="h-4 w-4" />
             </span>
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-800">
-              Intelligent Farm Intake Wizard
+              {t('wizard.title')}
             </span>
           </div>
 
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             <Shield className="w-3.5 h-3.5 text-mint-600" />
-            <span>Guest Analysis Enabled</span>
+            <span>{t('common.guestSession')}</span>
           </div>
         </div>
 
         <FormProgressBar
           currentStep={currentStep}
           totalSteps={4}
-          stepTitles={STEP_TITLES}
+          stepTitles={stepTitles}
           onStepClick={(step) => {
             if (step < currentStep || validateStep(currentStep)) {
               setCurrentStep(step);
@@ -227,11 +250,11 @@ export function FarmWizard({
                 className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                Previous
+                {t('common.previous')}
               </button>
             ) : (
               <span className="text-[11px] text-slate-400 hidden sm:inline">
-                Fields without asterisk (*) can be safely skipped
+                {t('wizard.skipNotice')}
               </span>
             )}
           </div>
@@ -243,7 +266,7 @@ export function FarmWizard({
                 onClick={handleNext}
                 className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-mint-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-mint-700 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
               >
-                Next Step
+                {t('common.next')}
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             ) : (
@@ -252,7 +275,7 @@ export function FarmWizard({
                 className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-mint-600 to-emerald-700 px-6 py-3 text-xs font-bold text-white shadow-md shadow-mint-600/20 transition hover:from-mint-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-mint-500/30"
               >
                 <Sparkles className="w-4 h-4 text-emerald-200" />
-                Analyze My Farm
+                {t('wizard.submitBtn')}
               </button>
             )}
           </div>
@@ -262,14 +285,14 @@ export function FarmWizard({
       {/* Account saving prompt */}
       <div className="mt-4 pt-3 text-center border-t border-slate-100">
         <p className="text-[11px] text-slate-500">
-          Want to track recommendations across seasons?{' '}
+          {t('wizard.accountPromptText')}{' '}
           <a
             href="/auth/login"
             className="font-semibold text-mint-700 hover:text-mint-800 hover:underline"
           >
-            Sign in or register
+            {t('wizard.accountPromptLink')}
           </a>{' '}
-          to save your farm profile.
+          {t('wizard.accountPromptEnd')}
         </p>
       </div>
     </div>

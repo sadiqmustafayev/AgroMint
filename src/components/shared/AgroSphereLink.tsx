@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import { ExternalLink, ShoppingBag, ShieldCheck, UserCheck, Wrench } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface AgroSphereLinkProps {
   title: string;
@@ -18,6 +21,21 @@ export function AgroSphereLink({
   callToActionText = 'Explore on AgroSphere',
   className = '',
 }: AgroSphereLinkProps) {
+  let t: (k: string) => string = (k: string) => {
+    if (k === 'common.agroSpherePartner') return 'AgroSphere Partner Link';
+    if (k === 'common.external') return 'External';
+    return k;
+  };
+
+  try {
+    const lang = useLanguage();
+    if (lang && lang.t) {
+      t = lang.t;
+    }
+  } catch (e) {
+    // fallback
+  }
+
   const getIcon = () => {
     switch (serviceType) {
       case 'protection':
@@ -44,10 +62,10 @@ export function AgroSphereLink({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
-                AgroSphere Partner Link
+                {t('common.agroSpherePartner')}
               </span>
               <span className="text-[10px] rounded bg-emerald-100/60 px-1.5 py-0.5 font-medium text-emerald-800">
-                External
+                {t('common.external')}
               </span>
             </div>
             <h4 className="mt-1 text-sm font-semibold text-slate-900">{title}</h4>

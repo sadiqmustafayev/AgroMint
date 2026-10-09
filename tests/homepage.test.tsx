@@ -17,16 +17,18 @@ describe('Homepage View', () => {
     // Brand and platform title
     expect(screen.getAllByText(/AgroMint AI/i).length).toBeGreaterThan(0);
     expect(
-      screen.getAllByText(/Agricultural Intelligence Platform/i).length
+      screen.getAllByText(/Agricultural Intelligence Platform|Süni İntellekt Aqrar Analitika/i).length
     ).toBeGreaterThan(0);
 
     // Hero section
     expect(
-      screen.getByText(/Context-Aware Agronomic Intelligence for Modern Farms/i)
+      screen.getByText(/Context-Aware Agronomic Intelligence for Modern Farms|Müasir Təsərrüfatlar Üçün Dəqiq Aqronomik İntellekt/i)
     ).toBeInTheDocument();
 
     // Wizard presence
-    expect(screen.getByText(/Intelligent Farm Intake Wizard/i)).toBeInTheDocument();
-    expect(screen.getByText(/Step 1 of 4/i)).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/Intelligent Farm Intake Wizard|Ağıllı Təsərrüfat Məlumat Forması/i).length
+    ).toBeGreaterThan(0);
+    expect(screen.getByText(/Step 1 of 4|1-ci Addım/i)).toBeInTheDocument();
   });
 });

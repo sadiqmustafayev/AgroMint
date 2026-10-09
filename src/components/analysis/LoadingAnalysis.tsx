@@ -1,34 +1,8 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
-import { Sprout, CheckCircle2, Loader2, Database, BookOpen, Sparkles } from 'lucide-react';
-
-interface AnalysisStep {
-  id: number;
-  label: string;
-  detail: string;
-}
-
-const EVALUATION_STEPS: AnalysisStep[] = [
-  {
-    id: 1,
-    label: 'Normalizing Soil Chemistry',
-    detail: 'Calibrating pH, baseline cation exchange capacity, and salinity indices against regional soil benchmarks...',
-  },
-  {
-    id: 2,
-    label: 'Correlating Phenology & Growth Stage',
-    detail: 'Aligning plant growth phase with critical evapotranspiration and nutrient uptake curves...',
-  },
-  {
-    id: 3,
-    label: 'Evaluating Nutrient & Protection Thresholds',
-    detail: 'Screening foliar disease risks and calculating split nitrogen fertilizer requirements...',
-  },
-  {
-    id: 4,
-    label: 'Compiling Agronomic Advisory Dossier',
-    detail: 'Synthesizing evidence-based action schedule with explicit data gap disclosures...',
-  },
-];
+import { Sprout, CheckCircle2, Loader2, BookOpen } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface LoadingAnalysisProps {
   onComplete: () => void;
@@ -44,12 +18,60 @@ export function LoadingAnalysis({
   const [activeStep, setActiveStep] = useState(1);
   const [progressPct, setProgressPct] = useState(10);
 
+  let t = (k: string) => {
+    const fallbacks: Record<string, string> = {
+      'loading.title': 'Synthesizing Field Observations & Scientific References',
+      'loading.subtitle': 'AgroMint AI is processing your farm parameters through our curated agronomic knowledge base.',
+      'loading.progressLabel': 'Agronomic Modeling',
+      'loading.step1': 'Normalizing Soil Chemistry',
+      'loading.step1Detail': 'Calibrating pH, baseline cation exchange capacity, and salinity indices against regional soil benchmarks...',
+      'loading.step2': 'Correlating Phenology & Growth Stage',
+      'loading.step2Detail': 'Aligning plant growth phase with critical evapotranspiration and nutrient uptake curves...',
+      'loading.step3': 'Evaluating Nutrient & Protection Thresholds',
+      'loading.step3Detail': 'Screening foliar disease risks and calculating split nitrogen fertilizer requirements...',
+      'loading.step4': 'Compiling Agronomic Advisory Dossier',
+      'loading.step4Detail': 'Synthesizing evidence-based action schedule with explicit data gap disclosures...',
+      'loading.footnote': 'Cross-referencing scientific literature and FAO extension models',
+    };
+    return fallbacks[k] || k;
+  };
+
+  try {
+    const lang = useLanguage();
+    if (lang && lang.t) t = lang.t;
+  } catch (e) {
+    // fallback
+  }
+
+  const evaluationSteps = [
+    {
+      id: 1,
+      label: t('loading.step1'),
+      detail: t('loading.step1Detail'),
+    },
+    {
+      id: 2,
+      label: t('loading.step2'),
+      detail: t('loading.step2Detail'),
+    },
+    {
+      id: 3,
+      label: t('loading.step3'),
+      detail: t('loading.step3Detail'),
+    },
+    {
+      id: 4,
+      label: t('loading.step4'),
+      detail: t('loading.step4Detail'),
+    },
+  ];
+
   useEffect(() => {
-    const stepDuration = durationMs / EVALUATION_STEPS.length;
+    const stepDuration = durationMs / evaluationSteps.length;
 
     const interval = setInterval(() => {
       setActiveStep((prev) => {
-        if (prev < EVALUATION_STEPS.length) {
+        if (prev < evaluationSteps.length) {
           return prev + 1;
         }
         return prev;
@@ -75,7 +97,7 @@ export function LoadingAnalysis({
       clearInterval(progressInterval);
       clearTimeout(timeout);
     };
-  }, [durationMs, onComplete]);
+  }, [durationMs, onComplete, evaluationSteps.length]);
 
   return (
     <div
@@ -88,16 +110,16 @@ export function LoadingAnalysis({
         </div>
 
         <h2 className="mt-5 text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-          Synthesizing Field Observations & Scientific References
+          {t('loading.title')}
         </h2>
         <p className="mt-1.5 text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-          AgroMint AI is processing your farm parameters through our curated agronomic knowledge base.
+          {t('loading.subtitle')}
         </p>
 
         {/* Overall progress bar */}
         <div className="mt-6 mx-auto max-w-md">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-1.5">
-            <span>Agronomic Modeling</span>
+            <span>{t('loading.progressLabel')}</span>
             <span className="text-mint-700">{progressPct}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
@@ -111,7 +133,7 @@ export function LoadingAnalysis({
 
       {/* Step Checklist */}
       <div className="mt-8 space-y-3.5 border-t border-slate-100 pt-6">
-        {EVALUATION_STEPS.map((step) => {
+        {evaluationSteps.map((step) => {
           const isDone = activeStep > step.id;
           const isCurrent = activeStep === step.id;
 
@@ -153,12 +175,12 @@ export function LoadingAnalysis({
                   </span>
                   {isCurrent && (
                     <span className="text-[10px] font-medium text-mint-700 animate-pulse">
-                      Processing...
+                      ...
                     </span>
                   )}
                   {isDone && (
                     <span className="text-[10px] font-medium text-emerald-700">
-                      Verified
+                      ✓
                     </span>
                   )}
                 </div>
@@ -174,7 +196,7 @@ export function LoadingAnalysis({
       <div className="mt-6 text-center">
         <span className="inline-flex items-center gap-1.5 text-[11px] text-slate-400">
           <BookOpen className="w-3.5 h-3.5 text-mint-600" />
-          Cross-referencing scientific literature and FAO extension models
+          {t('loading.footnote')}
         </span>
       </div>
     </div>

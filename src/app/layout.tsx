@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { AppProviders } from '../components/providers/AppProviders';
 
 export const metadata: Metadata = {
   title: 'AgroMint AI — Agricultural Intelligence Platform',
@@ -12,9 +13,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="az">
       <body className="antialiased selection:bg-mint-200 selection:text-mint-900">
-        {children}
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

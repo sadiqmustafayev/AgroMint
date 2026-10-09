@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import { Download, Printer, RotateCcw, Calendar, MapPin, Sprout, Share2 } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface ResultsHeaderProps {
   reportId: string;
@@ -20,6 +23,24 @@ export function ResultsHeader({
   onReset,
   className = '',
 }: ResultsHeaderProps) {
+  let t = (k: string) => {
+    const map: Record<string, string> = {
+      'dashboard.dossierTitle': 'Agronomic Intelligence Dossier',
+      'dashboard.verifiedTag': 'Verified Analysis',
+      'dashboard.reportTitle': 'Personalized Farm Advisory Report',
+      'common.printReport': 'Print Report',
+      'common.newAnalysis': 'New Analysis',
+    };
+    return map[k] || k;
+  };
+
+  try {
+    const lang = useLanguage();
+    if (lang && lang.t) t = lang.t;
+  } catch (e) {
+    // fallback
+  }
+
   const formattedDate = createdAt
     ? new Date(createdAt).toLocaleDateString(undefined, {
         year: 'numeric',
@@ -36,18 +57,18 @@ export function ResultsHeader({
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-mint-700">
-              Agronomic Intelligence Dossier
+              {t('dashboard.dossierTitle')}
             </span>
             <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] font-mono font-medium text-slate-600">
               {reportId}
             </span>
             <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200">
-              Verified Analysis
+              {t('dashboard.verifiedTag')}
             </span>
           </div>
 
           <h1 className="mt-1.5 text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-            Personalized Farm Advisory Report
+            {t('dashboard.reportTitle')}
           </h1>
 
           {/* Metadata pill tags */}
@@ -83,7 +104,7 @@ export function ResultsHeader({
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
           >
             <Printer className="w-3.5 h-3.5 text-slate-500" />
-            Print Report
+            {t('common.printReport')}
           </button>
 
           {onReset && (
@@ -93,7 +114,7 @@ export function ResultsHeader({
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
             >
               <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-              New Analysis
+              {t('common.newAnalysis')}
             </button>
           )}
         </div>
