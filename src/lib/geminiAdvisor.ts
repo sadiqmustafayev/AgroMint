@@ -2,6 +2,7 @@ import { FarmSubmissionPayload } from '../types/farm';
 import { AgronomicAdvisoryReport } from '../types/advisory';
 import { SevenDayWeatherData } from './weatherService';
 import { generateMockAdvisoryReport } from './mockAdvisory';
+import { retrieveAgronomicContext } from './ragService';
 
 const GEMINI_MODELS = [
   'gemini-3.1-flash-lite',
@@ -29,6 +30,26 @@ export async function generateGeminiAdvisoryReport(
 
   const isAz = lang === 'az';
 
+  const ragReferences = retrieveAgronomicContext(payload, 4);
+
+  const ragContextBlock = ragReferences.length > 0
+    ? `
+ACADEMIC AGRONOMY TEXTBOOK REFERENCES (RAG - LOCAL SCIENTIFIC KNOWLEDGE BASE):
+${ragReferences
+  .map(
+    (ref, i) =>
+      `Reference ${i + 1}: "${ref.chunk.title}" by ${ref.chunk.author} (${ref.chunk.year}) [Category: ${ref.chunk.category}]
+Key Excerpt: ${ref.chunk.content}`
+  )
+  .join('\n\n')}
+
+CRITICAL RAG GROUNDING INSTRUCTION:
+You MUST directly ground your recommendations and populate citations using these local Azerbaijani agronomy textbook references:
+- In "scientificCitations": cite these specific textbooks with exact title, author (as source), publication year, and relevance.
+- In "fertilizerAdvisory" and "plantProtection": harmonize your medication, dosage, and agrotechnical prescriptions with the practices and standards specified in the reference excerpts.
+`
+    : '';
+
   const prompt = `You are AgroMint AI, an expert precision agronomy intelligence system.
 Analyze the provided farm profile alongside the live 7-day meteorological forecast to generate a personalized agronomic advisory report.
 
@@ -39,7 +60,7 @@ You MUST integrate the 7-day weather forecast directly into your agricultural co
 3. Plant Protection & Specific Medications: MUST diagnose the primary problem (especially taking into account the user's reported problem in mainProblem such as weeds, insect pests, fungus, or chlorosis). For weeds (alaq otu), specify exact herbicide names (e.g., "Herbisid: Qlifosat 480 q/l (cərgəarası)", "Selektiv herbisid: Pendimetalin 330 EC", "2,4-D amin duzu") and provide clear step-by-step instructions on how to eradicate them! For insect pests: specify exact insecticides (e.g. "İnsektisid: İmidakloprid 200 q/l", "Asetamiprid 20 SP"). For diseases: specify exact fungicides (e.g. "Funqisid: Azoksistrobin + Difenokonazol", "Mis kuporosu / Bordos mayesi 1%").
 4. Weather Synthesis: Provide clear agronomic synthesis (headline, summary, irrigationImpact, fertilizerImpact, protectionImpact, sprayWindowRecommendation).
 5. Action Steps: Action 1 must be immediate (1-2 days) accounting for immediate weather and urgent problem intervention. Action 2 must be near-term (3-7 days). Action 3 for next growth phase.
-
+${ragContextBlock}
 Language Requirement:
 ${isAz ? 'ALL user-facing text, titles, descriptions, diagnoses, and recommendations MUST be in natural Azerbaijani (az).' : 'ALL user-facing text, titles, descriptions, diagnoses, and recommendations MUST be in professional English (en).'}
 
@@ -115,10 +136,10 @@ Respond with STRICTLY valid JSON conforming to this schema (no markdown, no back
   "uncertaintiesAndGaps": ["..."],
   "scientificCitations": [
     {
-      "title": "...",
-      "source": "...",
-      "year": 2023,
-      "relevance": "..."
+      "title": "${ragReferences[0]?.chunk.title || 'Bitkiçilik (dərslik)'}",
+      "source": "${ragReferences[0]?.chunk.author || 'Q.Y. Məmmədov, M.M. İsmayılov'}",
+      "year": ${ragReferences[0]?.chunk.year || 2018},
+      "relevance": "${isAz ? 'Pambıq əkinlərində alaq otları ilə mübarizə və qozaların defoliasiyası üzrə elmi aqrotexniki norma.' : 'Scientific principles for weed management and crop maturation.'}"
     }
   ],
   "weatherSynthesis": {
@@ -245,7 +266,26 @@ Respond with STRICTLY valid JSON conforming to this schema (no markdown, no back
         },
         actionSteps: Array.isArray(parsed.actionSteps) ? parsed.actionSteps : [],
         uncertaintiesAndGaps: Array.isArray(parsed.uncertaintiesAndGaps) ? parsed.uncertaintiesAndGaps : [],
-        scientificCitations: Array.isArray(parsed.scientificCitations) ? parsed.scientificCitations : [],
+        scientificCitations: (() => {
+          let citations = Array.isArray(parsed.scientificCitations) && parsed.scientificCitations.length > 0
+            ? parsed.scientificCitations.filter(
+                (c: { title?: string; source?: string }) => c && typeof c.title === 'string' && c.title.trim().length > 0
+              )
+            : [];
+
+          if (citations.length === 0 && ragReferences.length > 0) {
+            citations = ragReferences.map(ref => ({
+              title: ref.chunk.title,
+              source: ref.chunk.author,
+              year: ref.chunk.year,
+              relevance: ref.chunk.content.length > 160
+                ? `${ref.chunk.content.slice(0, 157)}...`
+                : ref.chunk.content,
+            }));
+          }
+
+          return citations;
+        })(),
         weatherData: weather,
         weatherSynthesis: parsed.weatherSynthesis,
       };

@@ -2,6 +2,7 @@ import { FarmSubmissionPayload } from '../types/farm';
 import { AgronomicAdvisoryReport, MetricEvaluation, WeatherSynthesis, IdentifiedProblem } from '../types/advisory';
 import { SevenDayWeatherData } from './weatherService';
 import { getCropLabel, getStageLabel } from './cropStages';
+import { retrieveAgronomicContext } from './ragService';
 
 export function generateMockAdvisoryReport(
   payload: Partial<FarmSubmissionPayload>,
@@ -19,6 +20,8 @@ export function generateMockAdvisoryReport(
       (payload.soilMetrics.ph !== undefined ||
         payload.soilMetrics.nitrogenPpm !== undefined)
   );
+
+  const ragReferences = retrieveAgronomicContext(payload, 4);
 
   const metrics: MetricEvaluation[] = hasSoilMetrics
     ? [
@@ -606,32 +609,41 @@ export function generateMockAdvisoryReport(
           },
         ],
     uncertaintiesAndGaps,
-    scientificCitations: [
-      {
-        title: 'FAO Irrigation and Drainage Paper No. 56: Crop Evapotranspiration',
-        source: 'Food and Agriculture Organization (FAO), Rome',
-        year: 2021,
-        relevance: isAz
-          ? 'Quraq və yarımsəhra bölgələrində bitki su tələbatının hesablanması qaydaları.'
-          : 'Guidelines for computing crop water requirements in arid/semi-arid regions.',
-      },
-      {
-        title: 'Nutrient Management Guidelines for Field Crops',
-        source: 'International Plant Nutrition Institute (IPNI)',
-        year: 2022,
-        relevance: isAz
-          ? 'Fenoloji inkişaf mərhələləri üzrə azot və kaliumun mənimsənilmə kinetikası.'
-          : 'Nitrogen and potassium uptake kinetics by phenological growth stage.',
-      },
-      {
-        title: 'Integrated Pest Management: Field Guide for Cereal and Horticultural Crops',
-        source: 'Global Agronomy Extension Series',
-        year: 2023,
-        relevance: isAz
-          ? 'İqtisadi ziyan həddi və qeyri-kimyəvi aqrotexniki zərərverici mübarizə metodları.'
-          : 'Economic injury thresholds and non-chemical cultural pest control strategies.',
-      },
-    ],
+    scientificCitations: ragReferences.length > 0
+      ? ragReferences.map(ref => ({
+          title: ref.chunk.title,
+          source: ref.chunk.author,
+          year: ref.chunk.year,
+          relevance: ref.chunk.content.length > 160
+            ? `${ref.chunk.content.slice(0, 157)}...`
+            : ref.chunk.content,
+        }))
+      : [
+          {
+            title: 'FAO Irrigation and Drainage Paper No. 56: Crop Evapotranspiration',
+            source: 'Food and Agriculture Organization (FAO), Rome',
+            year: 2021,
+            relevance: isAz
+              ? 'Quraq və yarımsəhra bölgələrində bitki su tələbatının hesablanması qaydaları.'
+              : 'Guidelines for computing crop water requirements in arid/semi-arid regions.',
+          },
+          {
+            title: 'Nutrient Management Guidelines for Field Crops',
+            source: 'International Plant Nutrition Institute (IPNI)',
+            year: 2022,
+            relevance: isAz
+              ? 'Fenoloji inkişaf mərhələləri üzrə azot və kaliumun mənimsənilmə kinetikası.'
+              : 'Nitrogen and potassium uptake kinetics by phenological growth stage.',
+          },
+          {
+            title: 'Integrated Pest Management: Field Guide for Cereal and Horticultural Crops',
+            source: 'Global Agronomy Extension Series',
+            year: 2023,
+            relevance: isAz
+              ? 'İqtisadi ziyan həddi və qeyri-kimyəvi aqrotexniki zərərverici mübarizə metodları.'
+              : 'Economic injury thresholds and non-chemical cultural pest control strategies.',
+          },
+        ],
     weatherData,
     weatherSynthesis: weatherData
       ? {
