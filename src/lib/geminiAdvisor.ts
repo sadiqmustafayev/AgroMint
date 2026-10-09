@@ -3,7 +3,7 @@ import { AgronomicAdvisoryReport } from '../types/advisory';
 import { SevenDayWeatherData } from './weatherService';
 import { generateMockAdvisoryReport } from './mockAdvisory';
 
-const GEMINI_MODELS = ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-flash-latest'];
+const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-3.7-flash'];
 
 export async function generateGeminiAdvisoryReport(
   payload: Partial<FarmSubmissionPayload>,
@@ -127,7 +127,7 @@ Respond with STRICTLY valid JSON conforming to this schema (no markdown, no back
   for (const model of GEMINI_MODELS) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 9000);
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
 
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,

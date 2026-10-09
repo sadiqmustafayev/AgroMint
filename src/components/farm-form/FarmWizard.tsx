@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, Sparkles, Shield, User, HelpCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Shield, User, HelpCircle, Loader2 } from 'lucide-react';
 import { FarmSubmissionPayload, SoilMetrics } from '../../types/farm';
 import { FormProgressBar } from './FormProgressBar';
 import { StepLocation } from './StepLocation';
@@ -24,6 +24,7 @@ export function FarmWizard({
   const { t, language } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const stepTitles = [
     t('wizard.step1'),
@@ -122,6 +123,7 @@ export function FarmWizard({
       uploadedPhotoNames: uploadedPhotos,
     };
 
+    setIsSubmitting(true);
     onSubmit(payload);
   };
 
@@ -252,10 +254,20 @@ export function FarmWizard({
             ) : (
               <button
                 type="submit"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-mint-600 to-emerald-700 px-6 py-3 text-xs font-bold text-white shadow-md shadow-mint-600/20 transition hover:from-mint-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-mint-500/30"
+                disabled={isSubmitting}
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-mint-600 to-emerald-700 px-6 py-3 text-xs font-bold text-white shadow-md shadow-mint-600/20 transition hover:from-mint-700 hover:to-emerald-800 focus:outline-none focus:ring-2 focus:ring-mint-500/30 disabled:opacity-75 disabled:cursor-wait"
               >
-                <Sparkles className="w-4 h-4 text-emerald-200" />
-                {t('wizard.submitBtn')}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 text-emerald-200 animate-spin" />
+                    <span>{language === 'az' ? 'Süni İntellekt Təhlil Edir...' : 'AI Analyzing...'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 text-emerald-200" />
+                    {t('wizard.submitBtn')}
+                  </>
+                )}
               </button>
             )}
           </div>

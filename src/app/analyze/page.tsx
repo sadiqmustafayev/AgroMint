@@ -155,7 +155,7 @@ export default function AnalyzePage() {
       <main className="flex-1 py-8 sm:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {isLoading ? (
-            <LoadingAnalysis />
+            <LoadingAnalysis durationMs={8000} />
           ) : (
             report && <ResultsDashboard report={report} onReset={handleReset} />
           )}

@@ -1,19 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { HeroSection } from '../components/home/HeroSection';
 import { FarmWizard } from '../components/farm-form/FarmWizard';
+import { LoadingAnalysis } from '../components/analysis/LoadingAnalysis';
 import { FarmSubmissionPayload } from '../types/farm';
 import { useLanguage } from '../i18n/LanguageContext';
 
 export default function HomePage() {
   const router = useRouter();
   const { t } = useLanguage();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const handleFarmSubmit = (payload: FarmSubmissionPayload) => {
+    setIsNavigating(true);
     try {
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem('agromint_submission', JSON.stringify(payload));
@@ -25,6 +28,20 @@ export default function HomePage() {
     // Direct user to analysis page
     router.push('/analyze');
   };
+
+  if (isNavigating) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50/60">
+        <Navbar />
+        <main className="flex-1 py-12 flex items-center justify-center">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
+            <LoadingAnalysis durationMs={8000} />
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50/50">

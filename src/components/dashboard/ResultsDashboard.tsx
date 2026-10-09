@@ -49,11 +49,6 @@ export function ResultsDashboard({
           />
         </div>
 
-        {/* Submitted Farm Profile Data */}
-        <div className="lg:col-span-2">
-          <FarmProfileCard profile={report.farmProfile} />
-        </div>
-
         {/* Plant Protection & Medicine Prescriptions */}
         <PlantProtectionCard plantProtection={report.plantProtection} />
 
@@ -77,8 +72,8 @@ export function ResultsDashboard({
               </h2>
               <p className="text-xs text-slate-500">
                 {isAz
-                  ? 'Hava proqnozu, mineral qidalanma və torpaq yaxşılaşdırma planı'
-                  : 'Detailed weather forecast and mineral fertilizer nutrition parameters'}
+                  ? '7 günlük hava proqnozu, gübrələmə planı və təsərrüfat parametrləri'
+                  : '7-day weather outlook, fertilization plan, and farm parameters'}
               </p>
             </div>
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
@@ -100,6 +95,11 @@ export function ResultsDashboard({
         {/* Gübrələmə və Torpaq Yaxşılaşdırma Planı */}
         <div className="lg:col-span-2">
           <FertilizerCard fertilizerAdvisory={report.fertilizerAdvisory} />
+        </div>
+
+        {/* İstifadəçi Təsərrüfat Profili / Farm Profile & Field Parameters */}
+        <div className="lg:col-span-2">
+          <FarmProfileCard profile={report.farmProfile} />
         </div>
       </div>
     </div>
