@@ -3,7 +3,12 @@ import { AgronomicAdvisoryReport } from '../types/advisory';
 import { SevenDayWeatherData } from './weatherService';
 import { generateMockAdvisoryReport } from './mockAdvisory';
 
-const GEMINI_MODELS = ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.7-flash'];
+const GEMINI_MODELS = [
+  'gemini-3.1-flash-lite',
+  'gemini-3.5-flash-lite',
+  'gemini-3-flash-preview',
+  'gemini-3.5-flash',
+];
 
 export async function generateGeminiAdvisoryReport(
   payload: Partial<FarmSubmissionPayload>,
@@ -14,8 +19,10 @@ export async function generateGeminiAdvisoryReport(
 
   if (!apiKey) {
     console.warn('GEMINI_API_KEY is not defined. Falling back to rules engine.');
+    const fallback = generateMockAdvisoryReport(payload, lang, weather);
+    fallback.source = 'rules-engine';
     return {
-      report: generateMockAdvisoryReport(payload, lang, weather),
+      report: fallback,
       source: 'rules-engine',
     };
   }
@@ -127,7 +134,7 @@ Respond with STRICTLY valid JSON conforming to this schema (no markdown, no back
   for (const model of GEMINI_MODELS) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 20000);
+      const timeoutId = setTimeout(() => controller.abort(), 25000);
 
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -160,8 +167,17 @@ Respond with STRICTLY valid JSON conforming to this schema (no markdown, no back
         continue;
       }
 
-      const rawJson = textPart.text.trim();
-      const parsed = JSON.parse(rawJson);
+      let cleanedJson = textPart.text.trim();
+      if (cleanedJson.startsWith('```')) {
+        cleanedJson = cleanedJson.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+      }
+      const firstBrace = cleanedJson.indexOf('{');
+      const lastBrace = cleanedJson.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1) {
+        cleanedJson = cleanedJson.slice(firstBrace, lastBrace + 1);
+      }
+
+      const parsed = JSON.parse(cleanedJson);
 
       // Validate core fields exist
       if (!parsed.summaryDiagnosis || !parsed.actionSteps || !parsed.weatherSynthesis) {
@@ -172,6 +188,7 @@ Respond with STRICTLY valid JSON conforming to this schema (no markdown, no back
       // Add AgroSphere partner links and standard metadata
       const report: AgronomicAdvisoryReport = {
         id: `agro-gemini-${Date.now()}`,
+        source: 'gemini',
         createdAt: new Date().toISOString(),
         farmProfile: payload as FarmSubmissionPayload,
         overallHealthScore: typeof parsed.overallHealthScore === 'number' ? parsed.overallHealthScore : 82,
@@ -241,8 +258,10 @@ Respond with STRICTLY valid JSON conforming to this schema (no markdown, no back
 
   // If all Gemini attempts failed or timed out, gracefully return rules engine report
   console.warn('All Gemini models exhausted. Serving resilient regional rules-engine advisory.');
+  const fallback = generateMockAdvisoryReport(payload, lang, weather);
+  fallback.source = 'rules-engine';
   return {
-    report: generateMockAdvisoryReport(payload, lang, weather),
+    report: fallback,
     source: 'rules-engine',
   };
 }

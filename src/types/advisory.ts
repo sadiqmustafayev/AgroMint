@@ -50,6 +50,7 @@ export interface SpecificTreatment {
 
 export interface AgronomicAdvisoryReport {
   id: string;
+  source?: 'gemini' | 'rules-engine' | 'rules-engine-emergency';
   createdAt: string;
   farmProfile: FarmSubmissionPayload;
   overallHealthScore: number; // 0-100

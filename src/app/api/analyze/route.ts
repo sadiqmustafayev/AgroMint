@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
 
     // Resilient fallback: return calibrated mock report preserving user payload and language
     const fallbackReport = generateMockAdvisoryReport(payload, language);
+    fallbackReport.source = 'rules-engine-emergency';
     return NextResponse.json({
       success: true,
       report: fallbackReport,

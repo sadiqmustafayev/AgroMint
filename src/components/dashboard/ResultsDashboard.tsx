@@ -30,6 +30,7 @@ export function ResultsDashboard({
       {/* Header with summary badges & actions */}
       <ResultsHeader
         reportId={report.id}
+        source={report.source}
         crop={report.farmProfile.crop}
         region={report.farmProfile.region}
         growthStage={report.farmProfile.growthStage}

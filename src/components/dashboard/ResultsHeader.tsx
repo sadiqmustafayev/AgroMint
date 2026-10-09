@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Download, Printer, RotateCcw, Calendar, MapPin, Sprout, Share2 } from 'lucide-react';
+import { Download, Printer, RotateCcw, Calendar, MapPin, Sprout, Share2, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 
 interface ResultsHeaderProps {
   reportId: string;
+  source?: string;
   crop: string;
   region: string;
   growthStage?: string;
@@ -16,6 +17,7 @@ interface ResultsHeaderProps {
 
 export function ResultsHeader({
   reportId,
+  source,
   crop,
   region,
   growthStage,
@@ -34,12 +36,16 @@ export function ResultsHeader({
     return map[k] || k;
   };
 
+  let isAz = false;
   try {
     const lang = useLanguage();
     if (lang && lang.t) t = lang.t;
+    if (lang && lang.language === 'az') isAz = true;
   } catch (e) {
     // fallback
   }
+
+  const isGemini = source === 'gemini' || reportId.startsWith('agro-gemini');
 
   const formattedDate = createdAt
     ? new Date(createdAt).toLocaleDateString(undefined, {
@@ -62,9 +68,16 @@ export function ResultsHeader({
             <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] font-mono font-medium text-slate-600">
               {reportId}
             </span>
-            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200">
-              {t('dashboard.verifiedTag')}
-            </span>
+            {isGemini ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-purple-50 to-indigo-50 px-2.5 py-0.5 text-[11px] font-bold text-indigo-700 border border-indigo-200 shadow-xs">
+                <Sparkles className="w-3 h-3 text-indigo-500" />
+                <span>{isAz ? 'Gemini AI ilə Təhlil Edildi' : 'Powered by Gemini AI'}</span>
+              </span>
+            ) : (
+              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200">
+                {t('dashboard.verifiedTag')}
+              </span>
+            )}
           </div>
 
           <h1 className="mt-1.5 text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
