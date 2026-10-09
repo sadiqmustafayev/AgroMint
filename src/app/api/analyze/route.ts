@@ -5,10 +5,13 @@ import { generateMockAdvisoryReport } from '../../../lib/mockAdvisory';
 import { FarmSubmissionPayload } from '../../../types/farm';
 
 export async function POST(req: NextRequest) {
+  let payload: Partial<FarmSubmissionPayload> = {};
+  let language: 'en' | 'az' = 'en';
+
   try {
     const body = await req.json();
-    const payload: Partial<FarmSubmissionPayload> = body.payload || {};
-    const language: 'en' | 'az' = body.language === 'az' ? 'az' : 'en';
+    payload = body.payload || {};
+    language = body.language === 'az' ? 'az' : 'en';
 
     // 1. Fetch live 7-day weather for farm's region / district
     const weather = await fetch7DayWeather(payload.region, payload.district, language);
@@ -25,8 +28,8 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('Error in /api/analyze route:', err);
 
-    // Resilient fallback: return calibrated mock report rather than throwing 500
-    const fallbackReport = generateMockAdvisoryReport({}, 'en');
+    // Resilient fallback: return calibrated mock report preserving user payload and language
+    const fallbackReport = generateMockAdvisoryReport(payload, language);
     return NextResponse.json({
       success: true,
       report: fallbackReport,

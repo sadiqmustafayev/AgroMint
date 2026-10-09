@@ -143,6 +143,14 @@ export function generateMockAdvisoryReport(
 
   // 0 & 2. Primary Problem Diagnosis & Concrete Medicine/Fertilizer Resolution
   const problemLower = (payload.mainProblem || '').toLowerCase();
+  const isCottonBollProblem =
+    problemLower.includes('qoza') ||
+    problemLower.includes('açıl') ||
+    problemLower.includes('acil') ||
+    problemLower.includes('defol') ||
+    problemLower.includes('yetiş') ||
+    problemLower.includes('yetis') ||
+    (problemLower.includes('pambıq') || problemLower.includes('pambiq') || problemLower.includes('cotton'));
   const isWeedProblem = problemLower.includes('alaq') || problemLower.includes('ot') || problemLower.includes('weed');
   const isYellowingProblem = problemLower.includes('saral') || problemLower.includes('azot') || problemLower.includes('nitrogen') || problemLower.includes('yellow');
   const isPestProblem = problemLower.includes('zərərverici') || problemLower.includes('pest') || problemLower.includes('qurd') || problemLower.includes('həşərat') || problemLower.includes('mənənə');
@@ -158,7 +166,20 @@ export function generateMockAdvisoryReport(
       : 'Recommended protocol: Apply Urea (46% N) and MAP (12-52) root nourishment; maintain preventative scouting for weeds and fungal vectors.',
   };
 
-  if (isWeedProblem) {
+  if (isCottonBollProblem) {
+    identifiedProblem = {
+      problemTitle: isAz
+        ? 'Pambıqda Qozaların Açılmasının Gecikməsi və Yetişmənin Ləngiməsi'
+        : 'Delayed Cotton Boll Opening & Crop Maturation Stagnation',
+      severity: 'critical' as const,
+      causeAnalysis: isAz
+        ? 'Pambıq sahəsində qozaların açılmaması əsasən vegetasiyanın son fazasında gecikmiş və ya həddindən artıq suvarma, torpaqda izafi azot qidalanması və defoliasiya (yarpaq tökümü) tədbirlərinin vaxtında görülməməsi ilə bağlıdır. Nəticədə bitki vegetativ böyüməni dayandırmır, alt qozalara günəş şüası və hava çatmır.'
+        : 'Delayed cotton boll opening occurs when excessive vegetative moisture or nitrogen prolongs growth and suppresses maturation signals. Lack of defoliation restricts sunlight to lower bolls.',
+      solutionPlan: isAz
+        ? 'Təxirəsalınmaz aqrotexniki və dərmanlama tədbirləri: 1. Suvarmanı dərhal tamamilə dayandırın! 2. Qozaların vaxtında və bərabər açılması üçün təcili kimyəvi açıcı və defoliant tətbiq edin: "Etefon 480 q/l" (1.5-2.0 l/ha) və ya "Tidiadiazuron + Diuron". 3. Lif keyfiyyətini qorumaq üçün Kalium Sulfat ilə yarpaqdan qidalanma aparın.'
+        : 'Urgent protocol: 1. Immediately terminate all irrigation! 2. Apply chemical boll opener and defoliant: Ethephon 480 g/L (1.5-2.0 L/ha) or Thidiazuron + Diuron. 3. Apply foliar Potassium Sulfate to stimulate carbohydrate movement into developing lint.',
+    };
+  } else if (isWeedProblem) {
     identifiedProblem = {
       problemTitle: isAz ? 'Sahədə İntensiv Alaq Otu Basması və Su-Qida Rəqabəti' : 'Intensive Weed Infestation & Moisture Competition',
       severity: 'critical' as const,
@@ -268,48 +289,69 @@ export function generateMockAdvisoryReport(
         : 'Unverified baseline. Recommended to perform standard Mehlich-3 soil extract test.',
     },
     fertilizerAdvisory: {
-      safeDosageNotice,
-      prescriptions: [
-        {
-          nutrient: isAz ? 'Azot (N)' : 'Nitrogen (N)',
-          fertilizerType: isAz
-            ? 'Karbamid (Urea 46% N) və ya Ammonium Nitrat (34.4% N)'
-            : 'Urea (46% N) or Calcium Ammonium Nitrate (CAN)',
-          timing: isAz ? 'Səhər tezdən suvarma öncəsi hissəli yemləmə' : 'Early morning split top-dress',
-          estimatedRate: hasSoilMetrics
-            ? '80 - 120 kg/ha'
-            : isAz
-            ? 'Ehtiyatlı ilkin norma'
-            : 'Conservative baseline only',
-          isGuardedEstimate: !hasSoilMetrics,
-        },
-        {
-          nutrient: isAz ? 'Fosfor (P2O5)' : 'Phosphorus (P2O5)',
-          fertilizerType: isAz
-            ? 'Ammofos (MAP 12-52) və ya Diammonium Fosfat (DAP 18-46)'
-            : 'Monoammonium Phosphate (MAP 12-52) or DAP (18-46)',
-          timing: isAz ? 'Kökətrafı lentvari tətbiq və ya fertiqasiya' : 'Localized band placement or fertigation',
-          estimatedRate: hasSoilMetrics
-            ? '40 - 60 kg/ha'
-            : isAz
-            ? 'Laboratoriya təsdiqi tələb olunur'
-            : 'Lab verification needed',
-          isGuardedEstimate: !hasSoilMetrics,
-        },
-        {
-          nutrient: isAz ? 'Kalium (K2O)' : 'Potassium (K2O)',
-          fertilizerType: isAz
-            ? 'Kalium Sulfat (SOP 0-0-50)'
-            : 'Potassium Sulfate (SOP 0-0-50)',
-          timing: isAz ? 'Suvarma suyu ilə (fertiqasiya)' : 'Mid-stage fertigation or soil incorporation',
-          estimatedRate: hasSoilMetrics
-            ? '40 - 50 kg/ha'
-            : isAz
-            ? 'Standart regional norma'
-            : 'Standard regional buffer',
-          isGuardedEstimate: !hasSoilMetrics,
-        },
-      ],
+      safeDosageNotice: isCottonBollProblem
+        ? (isAz
+            ? 'DİQQƏT: Qozaların açılması mərhələsində azot (N) verilməsi qəti QADAĞANDIR! İzafi azot bitkini vegetativ böyüməyə vadar edərək qozaların açılmasını ləngidir. Yalnız Kalium tətbiq olunmalıdır.'
+            : 'CAUTION: Nitrogen application is strictly prohibited during cotton boll opening as it prolongs vegetative growth and prevents opening. Apply only Potassium.')
+        : safeDosageNotice,
+      prescriptions: isCottonBollProblem
+        ? [
+            {
+              nutrient: isAz ? 'Kalium (K2O) - Qoza Yetişdirici' : 'Potassium (K2O) - Maturation',
+              fertilizerType: isAz ? 'Kalium Sulfat (50% K2O) və ya Kalium Nitrat' : 'Potassium Sulfate (50% K2O)',
+              timing: isAz ? 'Yarpaqdan çiləmə (qozalara şəkər və lif axınını sürətləndirmək üçün)' : 'Foliar spray to accelerate boll opening',
+              estimatedRate: '2.5 - 3.5 kq/ha',
+              isGuardedEstimate: false,
+            },
+            {
+              nutrient: isAz ? 'Azot (N) - QADAĞAN' : 'Nitrogen (N) - SUSPEND',
+              fertilizerType: isAz ? 'Azot gübrələrinin verilməsi dərhal tam dayandırılmalıdır' : 'Nitrogen fertilizers must be ceased',
+              timing: isAz ? 'Tətbiq edilmir' : 'Not applied',
+              estimatedRate: '0 kq/ha',
+              isGuardedEstimate: false,
+            },
+          ]
+        : [
+            {
+              nutrient: isAz ? 'Azot (N)' : 'Nitrogen (N)',
+              fertilizerType: isAz
+                ? 'Karbamid (Urea 46% N) və ya Ammonium Nitrat (34.4% N)'
+                : 'Urea (46% N) or Calcium Ammonium Nitrate (CAN)',
+              timing: isAz ? 'Səhər tezdən suvarma öncəsi hissəli yemləmə' : 'Early morning split top-dress',
+              estimatedRate: hasSoilMetrics
+                ? '80 - 120 kg/ha'
+                : isAz
+                ? 'Ehtiyatlı ilkin norma'
+                : 'Conservative baseline only',
+              isGuardedEstimate: !hasSoilMetrics,
+            },
+            {
+              nutrient: isAz ? 'Fosfor (P2O5)' : 'Phosphorus (P2O5)',
+              fertilizerType: isAz
+                ? 'Ammofos (MAP 12-52) və ya Diammonium Fosfat (DAP 18-46)'
+                : 'Monoammonium Phosphate (MAP 12-52) or DAP (18-46)',
+              timing: isAz ? 'Kökətrafı lentvari tətbiq və ya fertiqasiya' : 'Localized band placement or fertigation',
+              estimatedRate: hasSoilMetrics
+                ? '40 - 60 kg/ha'
+                : isAz
+                ? 'Laboratoriya təsdiqi tələb olunur'
+                : 'Lab verification needed',
+              isGuardedEstimate: !hasSoilMetrics,
+            },
+            {
+              nutrient: isAz ? 'Kalium (K2O)' : 'Potassium (K2O)',
+              fertilizerType: isAz
+                ? 'Kalium Sulfat (SOP 0-0-50)'
+                : 'Potassium Sulfate (SOP 0-0-50)',
+              timing: isAz ? 'Suvarma suyu ilə (fertiqasiya)' : 'Mid-stage fertigation or soil incorporation',
+              estimatedRate: hasSoilMetrics
+                ? '40 - 50 kg/ha'
+                : isAz
+                ? 'Standart regional norma'
+                : 'Standard regional buffer',
+              isGuardedEstimate: !hasSoilMetrics,
+            },
+          ],
       agroSphereLink: {
         title: isAz
           ? 'AgroSphere Platformasında Sertifikatlı Gübrələrlə Tanış Olun'
@@ -326,13 +368,26 @@ export function generateMockAdvisoryReport(
     },
     irrigationAdvisory: {
       currentMethod: payload.irrigationMethod || (isAz ? 'Standart Suvarma' : 'Standard Irrigation'),
-      recommendedFrequency: isAz
+      recommendedFrequency: isCottonBollProblem
+        ? (isAz ? 'Suvarma dərhal tamamilə dayandırılmalıdır' : 'Immediately terminate all field irrigation')
+        : isAz
         ? 'Hər 4-6 gündən bir (buxarlanma sürətinə uyğunlaşdırılmış)'
         : 'Every 4-6 days (adapted to evapotranspiration rates)',
-      waterRequirementMmPerWeek: weatherData
+      waterRequirementMmPerWeek: isCottonBollProblem
+        ? 0
+        : weatherData
         ? Math.max(12, 32 - Math.round(weatherData.summary.totalRainfallMm * 0.7))
         : 32,
-      managementTips: isAz
+      managementTips: isCottonBollProblem
+        ? [
+            isAz
+              ? 'TƏCİLİ: Suvarmanı dərhal dayandırın! Qozaların yetişməsi və açılması üçün torpaq qurumalıdır; su verildikdə bitki yenidən böyüyür və qozalar çürüyür.'
+              : 'CRITICAL: Terminate irrigation immediately! Cotton bolls require soil dry-down to open; watering induces boll rot.',
+            isAz
+              ? 'Drenaj arxlarını təmiz saxlayın ki, yağış yağarsa su sahədə göllənməsin.'
+              : 'Keep drainage ditches clear to prevent standing water during rainfall.',
+          ]
+        : isAz
         ? [
             weatherData && weatherData.summary.totalRainfallMm > 5
               ? `Proqnozlaşdırılan ${weatherData.summary.totalRainfallMm} mm yağıntı nəzərə alınaraq suvarma norması ${Math.max(12, 32 - Math.round(weatherData.summary.totalRainfallMm * 0.7))} mm/həftə səviyyəsinə tənzimlənmişdir.`
@@ -376,7 +431,20 @@ export function generateMockAdvisoryReport(
             'Neem seed kernel extract (NSKE 5%) or mineral oil foliar spray at initial spotting.',
             'Beneficial entomopathogenic fungi (Beauveria bassiana) during humid evenings.',
           ],
-      specificTreatments: isWeedProblem
+      specificTreatments: isCottonBollProblem
+        ? [
+            {
+              targetIssue: isAz ? 'Qozaların açılmasının gecikməsi və yaşıl kütlənin sıxlığı' : 'Delayed boll dehiscence & dense canopy',
+              medicineName: isAz ? 'Defoliant və Qoza Açıcı: Etefon 480 q/l (və ya Tidiadiazuron + Diuron)' : 'Boll Opener & Defoliant: Ethephon 480 g/L (or Thidiazuron + Diuron)',
+              applicationMethod: isAz ? 'Qozaların 60-70%-i yetkinləşdikdə, isti və quru havada 200-250 l/ha su norması ilə çiləmə' : 'Apply at 1.5-2.0 L/ha with 200-250 L/ha water during warm sunny conditions',
+            },
+            {
+              targetIssue: isAz ? 'Lif yetişməsinin sürətləndirilməsi və keyfiyyətin artırılması' : 'Lint fiber maturation & quality preservation',
+              medicineName: isAz ? 'Yarpaq gübrəsi: Kalium Sulfat və ya Kalium Fosfit' : 'Foliar fertilizer: Potassium Sulfate or Potassium Phosphite',
+              applicationMethod: isAz ? 'Defoliasiyadan 5-7 gün əvvəl 2-3 kq/ha doza ilə yarpaqdan çiləmə' : 'Foliar spray at 2-3 kg/ha prior to defoliation',
+            },
+          ]
+        : isWeedProblem
         ? [
             {
               targetIssue: isAz ? 'Birtillik və çoxillik alaq otları (pıtraq, qanqal, vələmir)' : 'Annual & perennial weeds (cocklebur, thistle, wild oats)',
@@ -410,7 +478,37 @@ export function generateMockAdvisoryReport(
           : 'Explore Crop Protection on AgroSphere',
       },
     },
-    actionSteps: weatherData && weatherData.summary.totalRainfallMm >= 8
+    actionSteps: isCottonBollProblem
+      ? [
+          {
+            id: 'act-1',
+            title: isAz ? 'Suvarmanın Dərhal Tam Dayandırılması' : 'Immediate Termination of Irrigation',
+            timeline: 'Immediate (1-2 Days)',
+            description: isAz
+              ? 'Qozaların açılmasını təmin etmək üçün sahəyə su verməyi tamamilə dayandırın. İzafi nəmlik yetişməni dayandırır və qozaların çürüməsinə səbəb olur.'
+              : 'Immediately cease all irrigation. Residual moisture prevents boll dehiscence and induces boll rotting.',
+            importance: 'critical',
+          },
+          {
+            id: 'act-2',
+            title: isAz ? 'Defoliant və Qoza Açıcı Çiləməsi (Etefon 480 q/l)' : 'Boll Opener & Defoliant Application',
+            timeline: 'Near-term (3-7 Days)',
+            description: isAz
+              ? 'Qozaların kütləvi açılması üçün isti, günəşli havada "Etefon 480 q/l" preparatını 1.5-2 l/ha norma ilə çiləyin.'
+              : 'Apply Ethephon 480 g/L at 1.5-2 L/ha in warm sunny conditions to accelerate uniform boll splitting.',
+            importance: 'critical',
+          },
+          {
+            id: 'act-3',
+            title: isAz ? 'Yarpaqdan Kalium Tətbiqi və Yığım Qrafiki' : 'Foliar Potassium & Harvest Planning',
+            timeline: 'Next Growth Phase',
+            description: isAz
+              ? 'Lif keyfiyyətini artırmaq üçün Kalium Sulfat (2-3 kq/ha) çiləyin və yarpaq tökümü bitdikdən sonra pambıq yığımına başlayın.'
+              : 'Foliar spray Potassium Sulfate (2-3 kg/ha) to boost fiber micronaire and initiate mechanized harvest once defoliation completes.',
+            importance: 'standard',
+          },
+        ]
+      : weatherData && weatherData.summary.totalRainfallMm >= 8
       ? [
           {
             id: 'act-1',

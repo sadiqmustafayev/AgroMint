@@ -76,19 +76,20 @@ export default function AnalyzePage() {
 
     // In browser: Keep loading screen active until Gemini API returns
     if (typeof window !== 'undefined' && window.location?.origin) {
-      const controller = new AbortController();
       const safetyTimeout = setTimeout(() => {
         setReport((prev) => prev || generateMockAdvisoryReport(payload, language));
         setIsLoading(false);
-      }, 25000);
+      }, 35000);
 
       fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ payload, language }),
-        signal: controller.signal,
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
         .then((data) => {
           clearTimeout(safetyTimeout);
           if (data?.report) {
@@ -98,7 +99,8 @@ export default function AnalyzePage() {
           }
           setIsLoading(false);
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error('Error in /api/analyze fetch:', err);
           clearTimeout(safetyTimeout);
           setReport(generateMockAdvisoryReport(payload, language));
           setIsLoading(false);
@@ -106,7 +108,6 @@ export default function AnalyzePage() {
 
       return () => {
         clearTimeout(safetyTimeout);
-        controller.abort();
       };
     }
   }, []);
