@@ -1,4 +1,5 @@
 import { FarmSubmissionPayload, SoilMetrics } from './farm';
+import { SevenDayWeatherData } from '../lib/weatherService';
 
 export interface AgroSphereOutboundLink {
   title: string;
@@ -23,6 +24,15 @@ export interface RecommendationAction {
   timeline: 'Immediate (1-2 Days)' | 'Near-term (3-7 Days)' | 'Next Growth Phase';
   description: string;
   importance: 'critical' | 'standard' | 'preventative';
+}
+
+export interface WeatherSynthesis {
+  headline: string;
+  summary: string;
+  irrigationImpact: string;
+  fertilizerImpact: string;
+  protectionImpact: string;
+  sprayWindowRecommendation: string;
 }
 
 export interface AgronomicAdvisoryReport {
@@ -75,4 +85,6 @@ export interface AgronomicAdvisoryReport {
     year: number;
     relevance: string;
   }[];
+  weatherData?: SevenDayWeatherData;
+  weatherSynthesis?: WeatherSynthesis;
 }

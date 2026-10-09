@@ -9,6 +9,7 @@ import { PlantProtectionCard } from './PlantProtectionCard';
 import { ActionStepsCard } from './ActionStepsCard';
 import { UncertaintiesCard } from './UncertaintiesCard';
 import { CitationsCard } from './CitationsCard';
+import { WeatherAnalysisCard } from './WeatherAnalysisCard';
 
 interface ResultsDashboardProps {
   report: AgronomicAdvisoryReport;
@@ -44,6 +45,16 @@ export function ResultsDashboard({
           summaryDiagnosis={report.summaryDiagnosis}
           findings={report.mainFindings}
         />
+
+        {/* Live Weather Forecast & AI Meteorological Synthesis */}
+        {(report.weatherData || report.weatherSynthesis) && (
+          <div className="lg:col-span-2">
+            <WeatherAnalysisCard
+              weatherData={report.weatherData}
+              weatherSynthesis={report.weatherSynthesis}
+            />
+          </div>
+        )}
 
         {/* Card 3: Fertilizer Advisory & AgroSphere Link */}
         <div className="lg:col-span-2">

@@ -1,10 +1,12 @@
 import { FarmSubmissionPayload } from '../types/farm';
-import { AgronomicAdvisoryReport, MetricEvaluation } from '../types/advisory';
+import { AgronomicAdvisoryReport, MetricEvaluation, WeatherSynthesis } from '../types/advisory';
+import { SevenDayWeatherData } from './weatherService';
 import { getCropLabel, getStageLabel } from './cropStages';
 
 export function generateMockAdvisoryReport(
   payload: Partial<FarmSubmissionPayload>,
-  lang: 'en' | 'az' = 'en'
+  lang: 'en' | 'az' = 'en',
+  weatherData?: SevenDayWeatherData
 ): AgronomicAdvisoryReport {
   const isAz = lang === 'az';
   const rawCrop = payload.crop || 'Wheat';
@@ -274,15 +276,21 @@ export function generateMockAdvisoryReport(
       recommendedFrequency: isAz
         ? 'Hər 4-6 gündən bir (buxarlanma sürətinə uyğunlaşdırılmış)'
         : 'Every 4-6 days (adapted to evapotranspiration rates)',
-      waterRequirementMmPerWeek: 32,
+      waterRequirementMmPerWeek: weatherData
+        ? Math.max(12, 32 - Math.round(weatherData.summary.totalRainfallMm * 0.7))
+        : 32,
       managementTips: isAz
         ? [
-            'Kökün udma qabiliyyətini artırmaq və buxarlanma itkisini azaltmaq üçün səhər tezdən suvarın.',
+            weatherData && weatherData.summary.totalRainfallMm > 5
+              ? `Proqnozlaşdırılan ${weatherData.summary.totalRainfallMm} mm yağıntı nəzərə alınaraq suvarma norması ${Math.max(12, 32 - Math.round(weatherData.summary.totalRainfallMm * 0.7))} mm/həftə səviyyəsinə tənzimlənmişdir.`
+              : 'Kökün udma qabiliyyətini artırmaq və buxarlanma itkisini azaltmaq üçün səhər tezdən suvarın.',
             'Nasos dövriyyəsinə başlamazdan əvvəl 25-30 sm dərinlikdə torpaq nəmliyini yoxlayın.',
             'Kök zonasında su durğunluğunun qarşısını almaq üçün drenaj şırımlarını açıq saxlayın.',
           ]
         : [
-            'Irrigate during early dawn hours to maximize root absorption and reduce surface evaporative loss.',
+            weatherData && weatherData.summary.totalRainfallMm > 5
+              ? `Accounted for ${weatherData.summary.totalRainfallMm}mm anticipated rainfall; net irrigation volume adjusted to ${Math.max(12, 32 - Math.round(weatherData.summary.totalRainfallMm * 0.7))} mm/week.`
+              : 'Irrigate during early dawn hours to maximize root absorption and reduce surface evaporative loss.',
             'Monitor tensiometer or soil feel at 25-30cm root depth before commencing pumping cycle.',
             'Ensure drainage channels prevent standing water in root zones.',
           ],
@@ -329,52 +337,103 @@ export function generateMockAdvisoryReport(
           : 'Explore Crop Protection on AgroSphere',
       },
     },
-    actionSteps: [
-      {
-        id: 'act-1',
-        title: isAz
-          ? 'Suvarmanı Tənzimləyin və Torpaq Nəmliyini Yoxlayın'
-          : 'Calibrate Irrigation & Inspect Moisture Zone',
-        timeline: 'Immediate (1-2 Days)',
-        description: isAz
-          ? '20 sm dərinlikdə rütubəti yoxlayın. Bitkinin su stresinə düşməməsi üçün suvarma rejimini nizamlayın.'
-          : 'Verify soil moisture at 20cm depth. Adjust schedule to prevent water stress during current growth window.',
-        importance: 'critical',
-      },
-      {
-        id: 'act-2',
-        title: isAz
-          ? 'Azot Yemləmə Gübrəsini Tətbiq Edin'
-          : 'Execute Split Nitrogen Top-Dressing',
-        timeline: 'Near-term (3-7 Days)',
-        description: isAz
-          ? 'Azotu planlaşdırılmış suvarmadan dərhal əvvəl hissə-hissə sahəyə verin.'
-          : 'Apply nitrogen in split applications, ideally right before scheduled irrigation or rain event.',
-        importance: 'standard',
-      },
-      {
-        id: 'act-3',
-        title: isAz
-          ? 'Sahə Monitorinqi və Xəstəlik Müşahidəsi'
-          : 'Canopy Monitoring & Disease Scouting',
-        timeline: 'Near-term (3-7 Days)',
-        description: isAz
-          ? 'Sahəni "W" trayektoriyası ilə gəzin; aşağı yarpaqların alt səthində ləkə və ya zərərverici olub-olmadığını yoxlayın.'
-          : 'Walk field in "W" pattern; check underside of lower leaves for fungal lesions or vector populations.',
-        importance: 'preventative',
-      },
-      {
-        id: 'act-4',
-        title: isAz
-          ? 'Laboratoriya Torpaq Analizi Aparın'
-          : 'Comprehensive Soil Lab Sampling',
-        timeline: 'Next Growth Phase',
-        description: isAz
-          ? 'Növbəti mövsümdə dəqiq mikrodozalanma üçün sahədən torpaq nümunələri götürün.'
-          : 'Collect core soil samples across representative zones to unlock precise micro-dosing for subsequent season.',
-        importance: 'standard',
-      },
-    ],
+    actionSteps: weatherData && weatherData.summary.totalRainfallMm >= 8
+      ? [
+          {
+            id: 'act-1',
+            title: isAz
+              ? 'Yağış Qabağı Drenaj və Suvarma Fasiləsi'
+              : 'Pre-Rain Drainage & Irrigation Pause',
+            timeline: 'Immediate (1-2 Days)',
+            description: isAz
+              ? `Gözlənilən ${weatherData.summary.totalRainfallMm} mm yağıntı səbəbilə su nasoslarını dayandırın və şırımların su axarını yoxlayın.`
+              : `Pause irrigation pumps ahead of predicted ${weatherData.summary.totalRainfallMm}mm rainfall and clear field furrows to prevent rootlogging.`,
+            importance: 'critical',
+          },
+          {
+            id: 'act-2',
+            title: isAz
+              ? 'Küləksiz Pəncərədə Zərərverici Nəzarəti və Çiləmə'
+              : 'Calm Window Plant Protection & Spraying',
+            timeline: 'Near-term (3-7 Days)',
+            description: isAz
+              ? weatherData.summary.maxWindSpeedKmH >= 18
+                ? `Küləyin ${weatherData.summary.maxWindSpeedKmH} km/saat olduğu günlərdə çiləmə aparmayın. Yağışdan sonrakı sakit səhər saatlarını seçin.`
+                : 'Yağışdan sonra yaranacaq rütubətli şəraitdə yarpaq ləkəliliyinə qarşı qoruyucu çiləmə aparın.'
+              : weatherData.summary.maxWindSpeedKmH >= 18
+                ? `Avoid foliar spraying during peak wind gusts (${weatherData.summary.maxWindSpeedKmH} km/h). Reschedule to calm post-rain morning.`
+                : 'Scout canopy for fungal lesions following rain event and deploy protective organic treatments.',
+            importance: 'standard',
+          },
+          {
+            id: 'act-3',
+            title: isAz
+              ? 'Yağışdan Sonra Azot Yemləməsi'
+              : 'Post-Rain Top-Dressing Application',
+            timeline: 'Near-term (3-7 Days)',
+            description: isAz
+              ? 'Torpaq həddindən artıq doymuş vəziyyətdən çıxdıqdan sonra azot normasını hissəvi olaraq verin.'
+              : 'Apply calibrated nitrogen top-dressing once topsoil stabilizes following the precipitation event.',
+            importance: 'standard',
+          },
+          {
+            id: 'act-4',
+            title: isAz
+              ? 'Laboratoriya Torpaq Analizi Aparın'
+              : 'Comprehensive Soil Lab Sampling',
+            timeline: 'Next Growth Phase',
+            description: isAz
+              ? 'Növbəti mövsümdə dəqiq mikrodozalanma üçün sahədən torpaq nümunələri götürün.'
+              : 'Collect core soil samples across representative zones to unlock precise micro-dosing for subsequent season.',
+            importance: 'preventative',
+          },
+        ]
+      : [
+          {
+            id: 'act-1',
+            title: isAz
+              ? 'Suvarmanı Tənzimləyin və Torpaq Nəmliyini Yoxlayın'
+              : 'Calibrate Irrigation & Inspect Moisture Zone',
+            timeline: 'Immediate (1-2 Days)',
+            description: isAz
+              ? '20 sm dərinlikdə rütubəti yoxlayın. Bitkinin su stresinə düşməməsi üçün suvarma rejimini nizamlayın.'
+              : 'Verify soil moisture at 20cm depth. Adjust schedule to prevent water stress during current growth window.',
+            importance: 'critical',
+          },
+          {
+            id: 'act-2',
+            title: isAz
+              ? 'Azot Yemləmə Gübrəsini Tətbiq Edin'
+              : 'Execute Split Nitrogen Top-Dressing',
+            timeline: 'Near-term (3-7 Days)',
+            description: isAz
+              ? 'Azotu planlaşdırılmış suvarmadan dərhal əvvəl hissə-hissə sahəyə verin.'
+              : 'Apply nitrogen in split applications, ideally right before scheduled irrigation or rain event.',
+            importance: 'standard',
+          },
+          {
+            id: 'act-3',
+            title: isAz
+              ? 'Sahə Monitorinqi və Xəstəlik Müşahidəsi'
+              : 'Canopy Monitoring & Disease Scouting',
+            timeline: 'Near-term (3-7 Days)',
+            description: isAz
+              ? 'Sahəni "W" trayektoriyası ilə gəzin; aşağı yarpaqların alt səthində ləkə və ya zərərverici olub-olmadığını yoxlayın.'
+              : 'Walk field in "W" pattern; check underside of lower leaves for fungal lesions or vector populations.',
+            importance: 'preventative',
+          },
+          {
+            id: 'act-4',
+            title: isAz
+              ? 'Laboratoriya Torpaq Analizi Aparın'
+              : 'Comprehensive Soil Lab Sampling',
+            timeline: 'Next Growth Phase',
+            description: isAz
+              ? 'Növbəti mövsümdə dəqiq mikrodozalanma üçün sahədən torpaq nümunələri götürün.'
+              : 'Collect core soil samples across representative zones to unlock precise micro-dosing for subsequent season.',
+            importance: 'standard',
+          },
+        ],
     uncertaintiesAndGaps,
     scientificCitations: [
       {
@@ -402,5 +461,44 @@ export function generateMockAdvisoryReport(
           : 'Economic injury thresholds and non-chemical cultural pest control strategies.',
       },
     ],
+    weatherData,
+    weatherSynthesis: weatherData
+      ? {
+          headline: isAz
+            ? `${weatherData.locationName}: 7 Günlük Aqro-Meteoroloji Nəticələr`
+            : `${weatherData.locationName}: 7-Day Agro-Meteorological Synthesis`,
+          summary: isAz
+            ? `Qarşıdakı 7 gündə orta maksimal temperatur ${weatherData.summary.avgMaxTemp}°C, ümumi yağıntı ${weatherData.summary.totalRainfallMm} mm və maksimal külək sürəti ${weatherData.summary.maxWindSpeedKmH} km/saat gözlənilir.`
+            : `Average high of ${weatherData.summary.avgMaxTemp}°C with ${weatherData.summary.totalRainfallMm}mm cumulative precipitation and maximum wind of ${weatherData.summary.maxWindSpeedKmH} km/h across the next 7 days.`,
+          irrigationImpact: isAz
+            ? weatherData.summary.totalRainfallMm >= 8
+              ? `Gözlənilən ${weatherData.summary.totalRainfallMm} mm yağıntı torpaq profilini təbii dolduracaq. Suvarma həcmi azaldılıb; intensiv yağıntı günlərində suvarma sistemlərini dayandırın.`
+              : `Yağıntı minimaldır (${weatherData.summary.totalRainfallMm} mm). Bitkinin su tələbatını ödəmək üçün müntəzəm suvarma qrafikini saxlayın.`
+            : weatherData.summary.totalRainfallMm >= 8
+              ? `Expected ${weatherData.summary.totalRainfallMm}mm rainfall recharges the root zone. Pumping requirement curtailed; pause automated cycles during peak rainfall.`
+              : `Low precipitation expected (${weatherData.summary.totalRainfallMm}mm). Maintain regular irrigation schedule to prevent evaporative deficit.`,
+          fertilizerImpact: isAz
+            ? weatherData.summary.totalRainfallMm >= 8
+              ? `Yağıntı ərəfəsində səpinlə azot verməyin; leysan suları ilə azotun yuyulması riskini önləmək üçün yemləməni yağışdan sonraya saxlayın.`
+              : `Nisbətən sabit hava şəraiti gübrələrin normal qrafiklə, səhər suvarma dövriyyəsində verilməsinə imkan verir.`
+            : weatherData.summary.totalRainfallMm >= 8
+              ? `Avoid surface broadcast of granular nitrogen ahead of rainfall to prevent leaching into subsoil. Delay until soil stabilizes.`
+              : `Stable atmospheric conditions favor routine fertilizer split-applications during scheduled early-morning waterings.`,
+          protectionImpact: isAz
+            ? weatherData.summary.rainyDaysCount >= 2
+              ? `Mülayim hava və yağıntı yarpaq rütubətini artıraraq göbələk xəstəliyi riskini yüksəldir. Xüsusilə alt yarpaqları yoxlayın.`
+              : `Aşağı rütubət göbələk riskini azaldır, lakin quru isti hava sorucu zərərvericilərin aktivləşməsinə səbəb ola bilər.`
+            : weatherData.summary.rainyDaysCount >= 2
+              ? `Consecutive damp periods elevate fungal spore germination risk. Monitor lower canopy and deploy preventative bio-controls.`
+              : `Low humidity reduces fungal disease incidence, but warm conditions require continued aphid and mite scouting.`,
+          sprayWindowRecommendation: isAz
+            ? weatherData.summary.maxWindSpeedKmH >= 18
+              ? `Külək ${weatherData.summary.maxWindSpeedKmH} km/saat həddinə çatdıqda çiləmədən imtina edin (damcıların sovrulması təhlükəsi). Küləyin sakit olduğu (<12 km/saat) səhər saatlarını seçin.`
+              : `Külək sürəti mülayimdir (${weatherData.summary.maxWindSpeedKmH} km/saat). Səhər və axşam saatlarında çiləmə aparmaq təhlükəsizdir.`
+            : weatherData.summary.maxWindSpeedKmH >= 18
+              ? `Hold foliar pesticide/fungicide applications during peak wind gusts (${weatherData.summary.maxWindSpeedKmH} km/h) to prevent drift. Spray when wind drops below 12 km/h.`
+              : `Favorable spray conditions with low wind speeds (${weatherData.summary.maxWindSpeedKmH} km/h). Safe for foliar applications during cool hours.`,
+        }
+      : undefined,
   };
 }

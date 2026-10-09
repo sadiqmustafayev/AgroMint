@@ -59,15 +59,53 @@ export default function AnalyzePage() {
     }
 
     setSubmissionPayload(payload);
-    const generated = generateMockAdvisoryReport(payload, language);
-    setReport(generated);
+
+    // Initial fallback while fetching live AI data
+    const initialReport = generateMockAdvisoryReport(payload, language);
+    setReport(initialReport);
+
+    // Fetch live 7-day weather + Gemini AI analysis in browser environment
+    if (typeof window !== 'undefined' && window.location?.origin) {
+      fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payload, language }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.report) {
+            setReport(data.report);
+          }
+        })
+        .catch(() => {
+          // Graceful fallback to initial local report
+        });
+    }
   }, []);
 
   // Update report reactively if user switches language on results page
   useEffect(() => {
     if (submissionPayload) {
-      const regenerated = generateMockAdvisoryReport(submissionPayload, language);
-      setReport(regenerated);
+      if (typeof window !== 'undefined' && window.location?.origin) {
+        fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payload: submissionPayload, language }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data?.report) {
+              setReport(data.report);
+            } else {
+              setReport(generateMockAdvisoryReport(submissionPayload, language));
+            }
+          })
+          .catch(() => {
+            setReport(generateMockAdvisoryReport(submissionPayload, language));
+          });
+      } else {
+        setReport(generateMockAdvisoryReport(submissionPayload, language));
+      }
     }
   }, [language]);
 
