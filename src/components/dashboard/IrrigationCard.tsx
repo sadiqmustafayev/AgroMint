@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import { Droplets, Clock, Gauge, Lightbulb } from 'lucide-react';
 import { DataBadge } from '../shared/DataBadge';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface IrrigationAdvisoryData {
   currentMethod: string;
@@ -15,6 +18,17 @@ interface IrrigationCardProps {
 }
 
 export function IrrigationCard({ irrigation, className = '' }: IrrigationCardProps) {
+  const { t } = useLanguage();
+
+  const methodSubText = (t('dashboard.irrigationMethodSub') || 'Method: {method}').replace(
+    '{method}',
+    irrigation.currentMethod
+  );
+  const evaporationSubText = (t('dashboard.evaporationSub') || 'Equivalent to ~{m3} m³ per hectare.').replace(
+    '{m3}',
+    String(irrigation.waterRequirementMmPerWeek * 10)
+  );
+
   return (
     <div
       className={`rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm ${className}`}
@@ -26,10 +40,10 @@ export function IrrigationCard({ irrigation, className = '' }: IrrigationCardPro
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              Irrigation & Moisture Management
+              {t('dashboard.irrigationTitle')}
             </h3>
             <span className="text-[11px] text-slate-500">
-              Method: {irrigation.currentMethod}
+              {methodSubText}
             </span>
           </div>
         </div>
@@ -42,13 +56,13 @@ export function IrrigationCard({ irrigation, className = '' }: IrrigationCardPro
         <div className="rounded-xl border border-slate-200/80 bg-slate-50/60 p-3.5">
           <div className="flex items-center gap-1.5 font-semibold text-slate-800">
             <Clock className="w-3.5 h-3.5 text-blue-600" />
-            <span>Optimal Irrigation Interval</span>
+            <span>{t('dashboard.waterIntervalTitle')}</span>
           </div>
           <p className="mt-1 text-base font-bold text-slate-900">
             {irrigation.recommendedFrequency}
           </p>
           <span className="text-[10px] text-slate-500">
-            Calibrated to current crop phenology and evaporation rate.
+            {t('dashboard.waterIntervalSub')}
           </span>
         </div>
 
@@ -56,13 +70,13 @@ export function IrrigationCard({ irrigation, className = '' }: IrrigationCardPro
         <div className="rounded-xl border border-slate-200/80 bg-slate-50/60 p-3.5">
           <div className="flex items-center gap-1.5 font-semibold text-slate-800">
             <Gauge className="w-3.5 h-3.5 text-blue-600" />
-            <span>Weekly Evapotranspiration Baseline</span>
+            <span>{t('dashboard.evaporationTitle')}</span>
           </div>
           <p className="mt-1 text-base font-bold text-slate-900">
             ~{irrigation.waterRequirementMmPerWeek} mm / week
           </p>
           <span className="text-[10px] text-slate-500">
-            Equivalent to ~{irrigation.waterRequirementMmPerWeek * 10} m³ per hectare.
+            {evaporationSubText}
           </span>
         </div>
       </div>
@@ -71,7 +85,7 @@ export function IrrigationCard({ irrigation, className = '' }: IrrigationCardPro
       <div className="mt-4 space-y-2">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
           <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-          Water Management Guidance:
+          {t('dashboard.waterTipsTitle')}
         </h4>
         <ul className="space-y-1.5 text-xs text-slate-600">
           {irrigation.managementTips.map((tip, idx) => (

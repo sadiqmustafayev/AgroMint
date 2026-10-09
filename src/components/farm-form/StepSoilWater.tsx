@@ -1,8 +1,11 @@
+'use client';
+
 import React from 'react';
 import { Layers, Droplets, FileUp, PenLine } from 'lucide-react';
 import { SoilMetrics, SoilType, IrrigationMethod, WaterSource } from '../../types/farm';
 import { SoilManualInput } from './SoilManualInput';
 import { FileUploadZone } from '../shared/FileUploadZone';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const SOIL_TYPES: SoilType[] = [
   'Sandy',
@@ -60,14 +63,28 @@ export function StepSoilWater({
   onIrrigationChange,
   onWaterSourceChange,
 }: StepSoilWaterProps) {
+  const { t } = useLanguage();
+
+  const getSoilLabel = (st: string) => {
+    return t(`options.soils.${st}`) || st;
+  };
+
+  const getIrrigationLabel = (im: string) => {
+    return t(`options.irrigation.${im}`) || im;
+  };
+
+  const getWaterLabel = (ws: string) => {
+    return t(`options.water.${ws}`) || ws;
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-base font-semibold text-slate-900">
-          Soil Fertility & Irrigation Infrastructure
+          {t('step3.title')}
         </h3>
         <p className="mt-1 text-xs text-slate-500">
-          Soil texture and hydrology govern nutrient solubility and fertilizer leaching rates.
+          {t('step3.desc')}
         </p>
       </div>
 
@@ -79,7 +96,7 @@ export function StepSoilWater({
             className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700"
           >
             <Layers className="w-3.5 h-3.5 text-mint-600" />
-            Soil Classification / Texture
+            {t('step3.soilTypeLabel')}
           </label>
           <div className="mt-1.5">
             <select
@@ -88,15 +105,15 @@ export function StepSoilWater({
               onChange={(e) => onSoilTypeChange(e.target.value)}
               className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
             >
-              {SOIL_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
+              {SOIL_TYPES.map((typeKey) => (
+                <option key={typeKey} value={typeKey}>
+                  {getSoilLabel(typeKey)}
                 </option>
               ))}
             </select>
           </div>
           <p className="mt-1 text-[11px] text-slate-500">
-            If unsure, select "Unknown / Unsure" to allow regional estimation.
+            {t('step3.soilTypeHelper')}
           </p>
         </div>
 
@@ -106,7 +123,7 @@ export function StepSoilWater({
             className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700"
           >
             <Droplets className="w-3.5 h-3.5 text-mint-600" />
-            Irrigation System
+            {t('step3.irrigationLabel')}
           </label>
           <div className="mt-1.5">
             <select
@@ -115,15 +132,15 @@ export function StepSoilWater({
               onChange={(e) => onIrrigationChange(e.target.value)}
               className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
             >
-              {IRRIGATION_METHODS.map((m) => (
-                <option key={m} value={m}>
-                  {m}
+              {IRRIGATION_METHODS.map((mKey) => (
+                <option key={mKey} value={mKey}>
+                  {getIrrigationLabel(mKey)}
                 </option>
               ))}
             </select>
           </div>
           <p className="mt-1 text-[11px] text-slate-500">
-            Enables fertigation and moisture interval modeling.
+            {t('step3.irrigationHelper')}
           </p>
         </div>
       </div>
@@ -135,7 +152,8 @@ export function StepSoilWater({
           className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700"
         >
           <Droplets className="w-3.5 h-3.5 text-mint-600" />
-          Primary Water Source <span className="text-slate-400 font-normal">(Optional)</span>
+          {t('step3.waterSourceLabel')}{' '}
+          <span className="text-slate-400 font-normal">({t('common.optional')})</span>
         </label>
         <div className="mt-1.5 max-w-sm">
           <select
@@ -144,9 +162,9 @@ export function StepSoilWater({
             onChange={(e) => onWaterSourceChange(e.target.value)}
             className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
           >
-            {WATER_SOURCES.map((s) => (
-              <option key={s} value={s}>
-                {s}
+            {WATER_SOURCES.map((sKey) => (
+              <option key={sKey} value={sKey}>
+                {getWaterLabel(sKey)}
               </option>
             ))}
           </select>
@@ -155,18 +173,18 @@ export function StepSoilWater({
 
       {/* Soil Analysis Entry Mode Toggle */}
       <div className="space-y-3 pt-2 border-t border-slate-200">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-700">
-              Soil Test Analysis Report
+              {t('step3.soilReportTitle')}
             </h4>
             <p className="mt-0.5 text-[11px] text-slate-500">
-              Provide soil test results via PDF/image upload or manual entry (optional).
+              {t('step3.soilReportDesc')}
             </p>
           </div>
 
           {/* Toggle pill buttons */}
-          <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-xs font-medium">
+          <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-xs font-medium self-start sm:self-auto">
             <button
               type="button"
               onClick={() => onSoilModeChange('upload')}
@@ -177,7 +195,7 @@ export function StepSoilWater({
               }`}
             >
               <FileUp className="w-3.5 h-3.5" />
-              Document Upload
+              {t('step3.docUploadMode')}
             </button>
             <button
               type="button"
@@ -189,15 +207,15 @@ export function StepSoilWater({
               }`}
             >
               <PenLine className="w-3.5 h-3.5" />
-              Manual Data Entry
+              {t('step3.manualMode')}
             </button>
           </div>
         </div>
 
         {soilMode === 'upload' ? (
           <FileUploadZone
-            label="Upload Soil Lab Report"
-            description="Upload official laboratory analysis sheets (PDF or scanned images)"
+            label={t('step3.uploadLabel')}
+            description={t('step3.uploadDesc')}
             acceptedTypes={['pdf', 'png', 'jpg']}
             initialFiles={uploadedDocs}
             onFilesSelected={onDocsChange}

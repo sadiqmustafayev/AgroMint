@@ -35,12 +35,18 @@ function resolveTranslation(language: Language, path: string): string {
   return typeof current === 'string' ? current : path;
 }
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('az'); // Default in application is Azerbaijani
+export function LanguageProvider({
+  children,
+  defaultLanguage,
+}: {
+  children: React.ReactNode;
+  defaultLanguage?: Language;
+}) {
+  const [language, setLanguageState] = useState<Language>(defaultLanguage || 'az');
 
   useEffect(() => {
     try {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && !defaultLanguage) {
         const saved = window.localStorage.getItem('agromint_language') as Language;
         if (saved === 'en' || saved === 'az') {
           setLanguageState(saved);
@@ -49,7 +55,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       // ignore
     }
-  }, []);
+  }, [defaultLanguage]);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);

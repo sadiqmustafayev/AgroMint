@@ -2,15 +2,16 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sprout, ShieldCheck, ArrowLeft, Lock, Mail, Phone } from 'lucide-react';
+import { Sprout, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate successful login and return to analysis or home
     router.push('/analyze');
   };
 
@@ -22,21 +23,21 @@ export default function LoginPage() {
             <Sprout className="h-6 w-6" />
           </div>
           <span className="text-xl font-bold tracking-tight text-slate-900">
-            AgroMint AI
+            {t('common.platformName')}
           </span>
         </a>
 
         <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">
-          Sign in to AgroMint AI
+          {t('auth.loginHeading')}
         </h1>
         <p className="mt-1 text-xs text-slate-500">
-          Access your farm records, historical soil tests, and seasonal recommendations.
+          {t('auth.loginSubtitle')}
         </p>
 
         {/* Notice of draft preservation */}
         <div className="mt-4 rounded-xl border border-mint-200 bg-mint-50/70 p-3 text-xs text-mint-900 flex items-center justify-center gap-2">
           <ShieldCheck className="w-4 h-4 text-mint-600 shrink-0" />
-          <span>Your current farm consultation draft is preserved across sessions.</span>
+          <span>{t('auth.loginPreservedNotice')}</span>
         </div>
       </div>
 
@@ -53,7 +54,7 @@ export default function LoginPage() {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Email Address
+              {t('auth.emailTab')}
             </button>
             <button
               type="button"
@@ -64,7 +65,7 @@ export default function LoginPage() {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Mobile Phone
+              {t('auth.phoneTab')}
             </button>
           </div>
 
@@ -75,14 +76,14 @@ export default function LoginPage() {
                   htmlFor="email-input"
                   className="block text-xs font-semibold uppercase tracking-wider text-slate-700"
                 >
-                  Email Address
+                  {t('auth.emailLabel')}
                 </label>
                 <div className="mt-1 relative">
                   <input
                     id="email-input"
                     type="email"
                     required
-                    placeholder="farmer@example.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
                   />
                 </div>
@@ -93,14 +94,14 @@ export default function LoginPage() {
                   htmlFor="phone-input"
                   className="block text-xs font-semibold uppercase tracking-wider text-slate-700"
                 >
-                  Phone Number
+                  {t('auth.phoneLabel')}
                 </label>
                 <div className="mt-1 relative">
                   <input
                     id="phone-input"
                     type="tel"
                     required
-                    placeholder="+994 (50) 000-00-00"
+                    placeholder={t('auth.phonePlaceholder')}
                     className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
                   />
                 </div>
@@ -112,7 +113,7 @@ export default function LoginPage() {
                 htmlFor="password-input"
                 className="block text-xs font-semibold uppercase tracking-wider text-slate-700"
               >
-                Password
+                {t('auth.passwordLabel')}
               </label>
               <div className="mt-1">
                 <input
@@ -130,7 +131,7 @@ export default function LoginPage() {
                 type="submit"
                 className="w-full rounded-lg bg-mint-600 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-mint-700 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
               >
-                Sign In to Account
+                {t('auth.signInBtn')}
               </button>
             </div>
           </form>
@@ -141,13 +142,13 @@ export default function LoginPage() {
               className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-800"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              Back to Home
+              {t('common.backToHome')}
             </a>
             <a
               href="/auth/register"
               className="font-medium text-mint-700 hover:text-mint-800 hover:underline"
             >
-              Don't have an account? Register
+              {t('auth.noAccountPrompt')}
             </a>
           </div>
         </div>

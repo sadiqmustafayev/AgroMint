@@ -62,21 +62,13 @@ export function FarmWizard({
     setErrorMessage(null);
     if (step === 1) {
       if (!region.trim()) {
-        setErrorMessage(
-          language === 'az'
-            ? 'Zəhmət olmasa Kənd Təsərrüfatı Regionunu qeyd edin və ya seçin.'
-            : 'Please specify or select an Agricultural Region.'
-        );
+        setErrorMessage(t('wizard.validationRegion'));
         return false;
       }
     }
     if (step === 2) {
       if (!crop.trim()) {
-        setErrorMessage(
-          language === 'az'
-            ? 'Davam etmək üçün zəhmət olmasa Bitki növünü seçin.'
-            : 'Please select a Crop to continue.'
-        );
+        setErrorMessage(t('wizard.validationCrop'));
         return false;
       }
     }
@@ -99,29 +91,17 @@ export function FarmWizard({
 
     if (!region.trim()) {
       setCurrentStep(1);
-      setErrorMessage(
-        language === 'az'
-          ? 'Zəhmət olmasa Kənd Təsərrüfatı Regionunu qeyd edin.'
-          : 'Please specify an Agricultural Region.'
-      );
+      setErrorMessage(t('wizard.validationRegion'));
       return;
     }
     if (!crop.trim()) {
       setCurrentStep(2);
-      setErrorMessage(
-        language === 'az'
-          ? 'Zəhmət olmasa Bitki növünü seçin.'
-          : 'Please select a Crop.'
-      );
+      setErrorMessage(t('wizard.validationCrop'));
       return;
     }
     if (!mainProblem.trim()) {
       setCurrentStep(4);
-      setErrorMessage(
-        language === 'az'
-          ? 'Zəhmət olmasa əsas aqrar probleminizi və ya sualınızı təsvir edin.'
-          : 'Please describe your main agricultural problem or inquiry.'
-      );
+      setErrorMessage(t('wizard.validationProblem'));
       return;
     }
 

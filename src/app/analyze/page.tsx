@@ -9,11 +9,14 @@ import { ResultsDashboard } from '../../components/dashboard/ResultsDashboard';
 import { generateMockAdvisoryReport } from '../../lib/mockAdvisory';
 import { FarmSubmissionPayload } from '../../types/farm';
 import { AgronomicAdvisoryReport } from '../../types/advisory';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export default function AnalyzePage() {
   const router = useRouter();
+  const { language } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [report, setReport] = useState<AgronomicAdvisoryReport | null>(null);
+  const [submissionPayload, setSubmissionPayload] = useState<Partial<FarmSubmissionPayload> | null>(null);
 
   useEffect(() => {
     let payload: Partial<FarmSubmissionPayload> = {};
@@ -31,8 +34,8 @@ export default function AnalyzePage() {
     // Default sample if accessed directly without submission
     if (!payload.region && !payload.crop) {
       payload = {
-        region: 'Aran Agricultural Basin',
-        district: 'Yevlakh',
+        region: language === 'az' ? 'Aran Kənd Təsərrüfatı Hövzəsi' : 'Aran Agricultural Basin',
+        district: 'Yevlax',
         farmAreaHectares: 24.5,
         crop: 'Cotton',
         growthStage: 'Squaring / Flowering',
@@ -49,13 +52,24 @@ export default function AnalyzePage() {
         irrigationMethod: 'Drip Irrigation',
         waterSource: 'Deep Borewell / Groundwater',
         mainProblem:
-          'Optimizing nitrogen top-dressing split application and monitoring early sucking pest thresholds.',
+          language === 'az'
+            ? 'Azot yemləmə normasının tənzimlənməsi və ilkin sorucu zərərverici hədlərinin monitorinqi.'
+            : 'Optimizing nitrogen top-dressing split application and monitoring early sucking pest thresholds.',
       };
     }
 
-    const generated = generateMockAdvisoryReport(payload);
+    setSubmissionPayload(payload);
+    const generated = generateMockAdvisoryReport(payload, language);
     setReport(generated);
   }, []);
+
+  // Update report reactively if user switches language on results page
+  useEffect(() => {
+    if (submissionPayload) {
+      const regenerated = generateMockAdvisoryReport(submissionPayload, language);
+      setReport(regenerated);
+    }
+  }, [language]);
 
   const handleReset = () => {
     try {

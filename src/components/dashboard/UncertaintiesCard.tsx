@@ -1,6 +1,8 @@
+'use client';
+
 import React from 'react';
-import { HelpCircle, AlertCircle, ShieldAlert } from 'lucide-react';
-import { DataBadge } from '../shared/DataBadge';
+import { AlertCircle, ShieldAlert } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface UncertaintiesCardProps {
   uncertainties: string[];
@@ -11,6 +13,8 @@ export function UncertaintiesCard({
   uncertainties,
   className = '',
 }: UncertaintiesCardProps) {
+  const { t } = useLanguage();
+
   return (
     <div
       className={`rounded-2xl border border-amber-200/90 bg-gradient-to-br from-amber-50/50 via-white to-white p-5 sm:p-6 shadow-sm ${className}`}
@@ -22,22 +26,22 @@ export function UncertaintiesCard({
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              Data Uncertainties & Information Gaps
+              {t('dashboard.uncertaintiesTitle')}
             </h3>
             <span className="text-[11px] text-slate-500">
-              Variables requiring caution or subsequent verification
+              {t('dashboard.uncertaintiesSub')}
             </span>
           </div>
         </div>
 
         <span className="inline-flex items-center gap-1 rounded-full bg-amber-100/80 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
-          Transparency Guard
+          {t('dashboard.transparencyGuard')}
         </span>
       </div>
 
       <div className="mt-4 space-y-2.5">
         <p className="text-xs text-slate-600 leading-relaxed">
-          To ensure farmer safety and prevent toxic over-dosage, AgroMint AI avoids fabricating unverified metrics. The following information gaps were identified in your submission:
+          {t('dashboard.uncertaintiesDesc')}
         </p>
 
         <ul className="space-y-2 text-xs text-slate-700">
@@ -53,7 +57,7 @@ export function UncertaintiesCard({
         </ul>
 
         <div className="mt-3 pt-2 text-[11px] text-slate-500">
-          Tip: You can re-run this assessment at any time by attaching official soil lab sheets or entering precise acreage.
+          {t('dashboard.uncertaintiesTip')}
         </div>
       </div>
     </div>

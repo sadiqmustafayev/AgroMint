@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import { Sprout, Calendar, History, Info } from 'lucide-react';
-import { AVAILABLE_CROPS, getCropGrowthStages } from '../../lib/cropStages';
+import { AVAILABLE_CROPS, getCropGrowthStages, getCropLabel, getStageLabel } from '../../lib/cropStages';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface StepCropProps {
   selectedCrop: string;
@@ -19,6 +22,7 @@ export function StepCrop({
   onStageChange,
   onPreviousCropChange,
 }: StepCropProps) {
+  const { t, language } = useLanguage();
   const growthStages = getCropGrowthStages(selectedCrop);
 
   const handleCropSelect = (crop: string) => {
@@ -39,10 +43,10 @@ export function StepCrop({
     <div className="space-y-5">
       <div>
         <h3 className="text-base font-semibold text-slate-900">
-          Crop Biology & Growth Phenology
+          {t('step2.title')}
         </h3>
         <p className="mt-1 text-xs text-slate-500">
-          Crop stage determines evapotranspiration needs, critical nitrogen thresholds, and pest susceptibility.
+          {t('step2.desc')}
         </p>
       </div>
 
@@ -54,7 +58,7 @@ export function StepCrop({
             className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700"
           >
             <Sprout className="w-3.5 h-3.5 text-mint-600" />
-            Current Crop <span className="text-red-500">*</span>
+            {t('step2.cropLabel')} <span className="text-red-500">*</span>
           </label>
           <div className="mt-1.5">
             <select
@@ -63,17 +67,17 @@ export function StepCrop({
               onChange={(e) => handleCropSelect(e.target.value)}
               className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
             >
-              <option value="">Select a crop...</option>
+              <option value="">{t('step2.cropPlaceholder')}</option>
               {AVAILABLE_CROPS.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {getCropLabel(c, language)}
                 </option>
               ))}
-              <option value="Other / Unlisted Crop">Other / Unlisted Crop</option>
+              <option value="Other / Unlisted Crop">{t('step2.otherCrop')}</option>
             </select>
           </div>
           <p className="mt-1 text-[11px] text-slate-500">
-            Select your main active or planned crop.
+            {t('step2.cropHelper')}
           </p>
         </div>
 
@@ -84,7 +88,8 @@ export function StepCrop({
             className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700"
           >
             <Calendar className="w-3.5 h-3.5 text-mint-600" />
-            Crop Growth Stage <span className="text-slate-400 font-normal">(Optional)</span>
+            {t('step2.stageLabel')}{' '}
+            <span className="text-slate-400 font-normal">({t('common.optional')})</span>
           </label>
           <div className="mt-1.5">
             <select
@@ -93,18 +98,18 @@ export function StepCrop({
               onChange={(e) => onStageChange(e.target.value)}
               className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
             >
-              <option value="">Select growth stage...</option>
+              <option value="">{t('step2.stagePlaceholder')}</option>
               {growthStages.map((stage) => (
                 <option key={stage} value={stage}>
-                  {stage}
+                  {getStageLabel(stage, language)}
                 </option>
               ))}
             </select>
           </div>
           <p className="mt-1 text-[11px] text-slate-500">
             {selectedCrop
-              ? `Stages specific to ${selectedCrop}.`
-              : 'Select a crop to load stages.'}
+              ? t('step2.stageHelperWithCrop').replace('{crop}', getCropLabel(selectedCrop, language))
+              : t('step2.stageHelperNoCrop')}
           </p>
         </div>
       </div>
@@ -116,13 +121,14 @@ export function StepCrop({
           className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700"
         >
           <History className="w-3.5 h-3.5 text-mint-600" />
-          Previous Crop in Field <span className="text-slate-400 font-normal">(Optional)</span>
+          {t('step2.prevCropLabel')}{' '}
+          <span className="text-slate-400 font-normal">({t('common.optional')})</span>
         </label>
         <div className="mt-1.5 max-w-sm">
           <input
             id="prev-crop-input"
             type="text"
-            placeholder="e.g. Alfalfa, Wheat, Fallow..."
+            placeholder={t('step2.prevCropPlaceholder')}
             value={previousCrop}
             onChange={(e) => onPreviousCropChange(e.target.value)}
             className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm transition focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
@@ -131,7 +137,7 @@ export function StepCrop({
         <div className="mt-2 flex items-start gap-1.5 text-[11px] text-slate-500">
           <Info className="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
           <span>
-            Previous legumes (alfalfa, clover) fix biological nitrogen, reducing current synthetic fertilizer requirements.
+            {t('step2.prevCropHelper')}
           </span>
         </div>
       </div>

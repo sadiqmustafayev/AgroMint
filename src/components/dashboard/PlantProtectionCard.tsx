@@ -1,8 +1,11 @@
+'use client';
+
 import React from 'react';
-import { ShieldCheck, Bug, Flower2, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, Bug, Flower2 } from 'lucide-react';
 import { AgroSphereOutboundLink } from '../../types/advisory';
 import { DataBadge } from '../shared/DataBadge';
 import { AgroSphereLink } from '../shared/AgroSphereLink';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface PlantProtectionData {
   diagnosedStressors: string[];
@@ -20,6 +23,8 @@ export function PlantProtectionCard({
   plantProtection,
   className = '',
 }: PlantProtectionCardProps) {
+  const { t } = useLanguage();
+
   return (
     <div
       className={`rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm ${className}`}
@@ -31,10 +36,10 @@ export function PlantProtectionCard({
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              Integrated Plant Protection & Disease Management
+              {t('dashboard.protectionTitle')}
             </h3>
             <span className="text-[11px] text-slate-500">
-              Biological controls, cultural prophylaxis, and intervention thresholds
+              {t('dashboard.protectionSub')}
             </span>
           </div>
         </div>
@@ -47,7 +52,7 @@ export function PlantProtectionCard({
         <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3.5 space-y-2">
           <div className="flex items-center gap-1.5 font-semibold text-slate-800">
             <Bug className="w-3.5 h-3.5 text-rose-500" />
-            <span>Diagnosed Vectors & Stressors</span>
+            <span>{t('dashboard.diagnosedPestsTitle')}</span>
           </div>
           <ul className="space-y-1.5 text-slate-600 pl-4 list-disc">
             {plantProtection.diagnosedStressors.map((s, idx) => (
@@ -60,7 +65,7 @@ export function PlantProtectionCard({
         <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3.5 space-y-2">
           <div className="flex items-center gap-1.5 font-semibold text-slate-800">
             <Flower2 className="w-3.5 h-3.5 text-mint-600" />
-            <span>Preventative Cultural Measures</span>
+            <span>{t('dashboard.culturalMeasuresTitle')}</span>
           </div>
           <ul className="space-y-1.5 text-slate-600 pl-4 list-disc">
             {plantProtection.preventativeControls.map((c, idx) => (
@@ -74,7 +79,7 @@ export function PlantProtectionCard({
       {plantProtection.organicInterventions && plantProtection.organicInterventions.length > 0 && (
         <div className="mt-4 rounded-xl border border-emerald-200/70 bg-emerald-50/40 p-3 text-xs">
           <span className="font-semibold text-emerald-950">
-            Biological & Botanical Treatments:
+            {t('dashboard.biologicalTreatmentsTitle')}
           </span>
           <ul className="mt-1.5 space-y-1 text-emerald-800 pl-4 list-disc">
             {plantProtection.organicInterventions.map((o, idx) => (

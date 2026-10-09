@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import { Check } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface FormProgressBarProps {
   currentStep: number;
@@ -14,12 +17,18 @@ export function FormProgressBar({
   stepTitles,
   onStepClick,
 }: FormProgressBarProps) {
+  const { t } = useLanguage();
+
+  const stepOfText = (t('common.stepOf') || 'Step {current} of {total}')
+    .replace('{current}', String(currentStep))
+    .replace('{total}', String(totalSteps));
+
   return (
     <div className="w-full">
       {/* Mobile step indicator */}
       <div className="flex items-center justify-between sm:hidden pb-3 border-b border-slate-200">
         <span className="text-xs font-semibold uppercase tracking-wider text-mint-700">
-          Step {currentStep} of {totalSteps}
+          {stepOfText}
         </span>
         <span className="text-xs font-medium text-slate-700">
           {stepTitles[currentStep - 1]}
@@ -32,6 +41,10 @@ export function FormProgressBar({
           const stepNum = idx + 1;
           const isComplete = stepNum < currentStep;
           const isCurrent = stepNum === currentStep;
+          const stepNumText = (t('common.stepNum') || 'Step {step}').replace(
+            '{step}',
+            String(stepNum)
+          );
 
           return (
             <button
@@ -63,7 +76,7 @@ export function FormProgressBar({
                   {title}
                 </span>
                 <span className="block text-[10px] text-slate-500">
-                  Step {stepNum}
+                  {stepNumText}
                 </span>
               </div>
             </button>

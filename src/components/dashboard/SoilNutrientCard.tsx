@@ -1,8 +1,11 @@
+'use client';
+
 import React from 'react';
-import { Layers, TestTube2, AlertCircle } from 'lucide-react';
+import { Layers, TestTube2 } from 'lucide-react';
 import { MetricEvaluation } from '../../types/advisory';
 import { DataBadge } from '../shared/DataBadge';
 import { MetricGauge } from '../shared/MetricGauge';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface SoilFertilityData {
   soilType: string;
@@ -20,6 +23,26 @@ export function SoilNutrientCard({
   soilFertility,
   className = '',
 }: SoilNutrientCardProps) {
+  const { t, language } = useLanguage();
+
+  const getFertilityIndexLabel = (idx: string) => {
+    if (language === 'az') {
+      if (idx === 'Balanced') return 'Balanslaşdırılmış';
+      if (idx === 'Low') return 'Aşağı';
+      if (idx === 'Moderate') return 'Orta';
+      if (idx === 'Alkaline Stress') return 'Qələvi Stres';
+      return 'Naməlum';
+    }
+    return idx;
+  };
+
+  const soilTypeLabel =
+    t(`options.soils.${soilFertility.soilType}`) || soilFertility.soilType;
+
+  const subText = (t('dashboard.soilProfileSub') || 'Texture: {soilType} • Index: {index}')
+    .replace('{soilType}', soilTypeLabel)
+    .replace('{index}', getFertilityIndexLabel(soilFertility.fertilityIndex));
+
   return (
     <div
       className={`rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm ${className}`}
@@ -31,10 +54,10 @@ export function SoilNutrientCard({
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              Soil Fertility & Nutrient Profile
+              {t('dashboard.soilProfileTitle')}
             </h3>
             <span className="text-[11px] text-slate-500">
-              Texture: {soilFertility.soilType} • Index: {soilFertility.fertilityIndex}
+              {subText}
             </span>
           </div>
         </div>

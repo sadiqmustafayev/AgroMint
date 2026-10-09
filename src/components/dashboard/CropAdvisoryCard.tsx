@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import { Sprout, Thermometer, ShieldAlert, SunMedium, Compass } from 'lucide-react';
 import { DataBadge } from '../shared/DataBadge';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface CropAdvisoryGuidance {
   optimalTemperature: string;
@@ -22,6 +25,17 @@ export function CropAdvisoryCard({
   guidance,
   className = '',
 }: CropAdvisoryCardProps) {
+  const { t } = useLanguage();
+
+  const titleText = (t('dashboard.cropGuidanceTitle') || 'Crop-Specific Cultivation Guidance: {crop}').replace(
+    '{crop}',
+    crop
+  );
+  const subText = (t('dashboard.cropGuidanceSub') || 'Calibrated management for {stage}').replace(
+    '{stage}',
+    stage
+  );
+
   return (
     <div
       className={`rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm ${className}`}
@@ -33,10 +47,10 @@ export function CropAdvisoryCard({
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              Crop-Specific Cultivation Guidance: {crop}
+              {titleText}
             </h3>
             <span className="text-[11px] text-slate-500">
-              Calibrated management for {stage}
+              {subText}
             </span>
           </div>
         </div>
@@ -49,7 +63,7 @@ export function CropAdvisoryCard({
         <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3">
           <div className="flex items-center gap-1.5 font-semibold text-slate-800">
             <Thermometer className="w-3.5 h-3.5 text-rose-500" />
-            <span>Optimal Temperature Spectrum</span>
+            <span>{t('dashboard.optimalTemp')}</span>
           </div>
           <p className="mt-1 text-slate-600 leading-relaxed">
             {guidance.optimalTemperature}
@@ -60,7 +74,7 @@ export function CropAdvisoryCard({
         <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-3">
           <div className="flex items-center gap-1.5 font-semibold text-slate-800">
             <SunMedium className="w-3.5 h-3.5 text-amber-500" />
-            <span>Canopy & Aeration Care</span>
+            <span>{t('dashboard.canopyCare')}</span>
           </div>
           <p className="mt-1 text-slate-600 leading-relaxed">
             {guidance.canopyCare}
@@ -71,7 +85,7 @@ export function CropAdvisoryCard({
         <div className="sm:col-span-2 rounded-xl border border-slate-200/80 bg-slate-50/50 p-3">
           <div className="flex items-center gap-1.5 font-semibold text-slate-800">
             <Compass className="w-3.5 h-3.5 text-mint-600" />
-            <span>Phenology Management Strategy</span>
+            <span>{t('dashboard.phenologyStrategy')}</span>
           </div>
           <p className="mt-1 text-slate-600 leading-relaxed">
             {guidance.stageManagement}
@@ -84,7 +98,7 @@ export function CropAdvisoryCard({
         <div className="mt-3.5 rounded-lg border border-amber-200/70 bg-amber-50/40 p-3">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-900">
             <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
-            <span>Critical Risks for this Growth Phase:</span>
+            <span>{t('dashboard.criticalRisks')}</span>
           </div>
           <ul className="mt-1.5 space-y-1 text-xs text-amber-800 pl-4 list-disc">
             {guidance.keyRisks.map((risk, idx) => (

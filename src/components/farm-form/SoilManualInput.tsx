@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import { SoilMetrics } from '../../types/farm';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface SoilManualInputProps {
   metrics: SoilMetrics;
@@ -7,6 +10,8 @@ interface SoilManualInputProps {
 }
 
 export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
+  const { t } = useLanguage();
+
   const handleChange = (field: keyof SoilMetrics, strVal: string) => {
     if (strVal === '') {
       onChange(field, undefined);
@@ -20,10 +25,10 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
     <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-4">
       <div>
         <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-700">
-          Soil Chemistry & Nutrient Metrics
+          {t('step3.manualChemistryTitle')}
         </h4>
         <p className="mt-0.5 text-[11px] text-slate-500">
-          Enter values from your soil laboratory test sheet. Leave unknown fields blank.
+          {t('step3.manualChemistryDesc')}
         </p>
       </div>
 
@@ -34,7 +39,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
             htmlFor="metric-ph"
             className="block text-xs font-medium text-slate-700"
           >
-            Soil pH (H₂O)
+            {t('step3.phLabel')}
           </label>
           <div className="mt-1 flex items-center">
             <input
@@ -49,7 +54,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-mint-500 focus:outline-none focus:ring-1 focus:ring-mint-500"
             />
           </div>
-          <span className="text-[10px] text-slate-400">Optimum: 6.0 - 7.2</span>
+          <span className="text-[10px] text-slate-400">{t('step3.phOptimum')}</span>
         </div>
 
         {/* Organic Matter */}
@@ -58,7 +63,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
             htmlFor="metric-om"
             className="block text-xs font-medium text-slate-700"
           >
-            Organic Matter (%)
+            {t('step3.omLabel')}
           </label>
           <div className="mt-1 flex items-center">
             <input
@@ -73,7 +78,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-mint-500 focus:outline-none focus:ring-1 focus:ring-mint-500"
             />
           </div>
-          <span className="text-[10px] text-slate-400">Optimum: &gt; 2.5%</span>
+          <span className="text-[10px] text-slate-400">{t('step3.omOptimum')}</span>
         </div>
 
         {/* Nitrogen */}
@@ -82,7 +87,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
             htmlFor="metric-n"
             className="block text-xs font-medium text-slate-700"
           >
-            Available Nitrogen (N)
+            {t('step3.nLabel')}
           </label>
           <div className="mt-1 flex items-center">
             <input
@@ -96,7 +101,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-mint-500 focus:outline-none focus:ring-1 focus:ring-mint-500"
             />
           </div>
-          <span className="text-[10px] text-slate-400">NO₃-N (ppm / mg/kg)</span>
+          <span className="text-[10px] text-slate-400">{t('step3.nOptimum')}</span>
         </div>
 
         {/* Phosphorus */}
@@ -105,7 +110,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
             htmlFor="metric-p"
             className="block text-xs font-medium text-slate-700"
           >
-            Phosphorus (P Olsen)
+            {t('step3.pLabel')}
           </label>
           <div className="mt-1 flex items-center">
             <input
@@ -119,7 +124,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-mint-500 focus:outline-none focus:ring-1 focus:ring-mint-500"
             />
           </div>
-          <span className="text-[10px] text-slate-400">ppm (mg/kg)</span>
+          <span className="text-[10px] text-slate-400">{t('step3.pOptimum')}</span>
         </div>
 
         {/* Potassium */}
@@ -128,7 +133,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
             htmlFor="metric-k"
             className="block text-xs font-medium text-slate-700"
           >
-            Exchangeable Potassium (K)
+            {t('step3.kLabel')}
           </label>
           <div className="mt-1 flex items-center">
             <input
@@ -142,7 +147,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-mint-500 focus:outline-none focus:ring-1 focus:ring-mint-500"
             />
           </div>
-          <span className="text-[10px] text-slate-400">ppm (mg/kg)</span>
+          <span className="text-[10px] text-slate-400">{t('step3.kOptimum')}</span>
         </div>
 
         {/* Salinity EC */}
@@ -151,7 +156,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
             htmlFor="metric-ec"
             className="block text-xs font-medium text-slate-700"
           >
-            Electrical Cond. (Salinity EC)
+            {t('step3.ecLabel')}
           </label>
           <div className="mt-1 flex items-center">
             <input
@@ -165,7 +170,7 @@ export function SoilManualInput({ metrics, onChange }: SoilManualInputProps) {
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-mint-500 focus:outline-none focus:ring-1 focus:ring-mint-500"
             />
           </div>
-          <span className="text-[10px] text-slate-400">dS/m (Salinity index)</span>
+          <span className="text-[10px] text-slate-400">{t('step3.ecOptimum')}</span>
         </div>
       </div>
     </div>

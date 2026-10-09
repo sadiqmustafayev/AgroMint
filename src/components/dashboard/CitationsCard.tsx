@@ -1,6 +1,8 @@
+'use client';
+
 import React from 'react';
-import { BookOpen, ExternalLink, Bookmark } from 'lucide-react';
-import { DataBadge } from '../shared/DataBadge';
+import { BookOpen } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface CitationItem {
   title: string;
@@ -15,6 +17,8 @@ interface CitationsCardProps {
 }
 
 export function CitationsCard({ citations, className = '' }: CitationsCardProps) {
+  const { t } = useLanguage();
+
   return (
     <div
       className={`rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm ${className}`}
@@ -26,16 +30,16 @@ export function CitationsCard({ citations, className = '' }: CitationsCardProps)
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              Scientific Literature & Agronomic Citations
+              {t('dashboard.citationsTitle')}
             </h3>
             <span className="text-[11px] text-slate-500">
-              Correlated research guides and extension publications
+              {t('dashboard.citationsSub')}
             </span>
           </div>
         </div>
 
         <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
-          Peer-Reviewed Knowledge Base
+          {t('dashboard.peerReviewedTitle')}
         </span>
       </div>
 
@@ -55,12 +59,12 @@ export function CitationsCard({ citations, className = '' }: CitationsCardProps)
             </div>
 
             <p className="text-slate-500 text-[11px]">
-              <span className="font-medium text-slate-700">Source: </span>
+              <span className="font-medium text-slate-700">{t('dashboard.sourceLabel')} </span>
               {cite.source}
             </p>
 
             <p className="text-slate-600 leading-relaxed text-[11px] border-t border-slate-100 pt-1">
-              <span className="font-medium text-mint-900">Agronomic Application: </span>
+              <span className="font-medium text-mint-900">{t('dashboard.agronomicAppLabel')} </span>
               {cite.relevance}
             </p>
           </div>

@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Sprout, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Sprout, ArrowLeft } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,15 +22,15 @@ export default function RegisterPage() {
             <Sprout className="h-6 w-6" />
           </div>
           <span className="text-xl font-bold tracking-tight text-slate-900">
-            AgroMint AI
+            {t('common.platformName')}
           </span>
         </a>
 
         <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-900">
-          Create Farmer Account
+          {t('auth.registerHeading')}
         </h1>
         <p className="mt-1 text-xs text-slate-500">
-          Register to save multiple farm plots, track soil trends, and receive seasonal alerts.
+          {t('auth.registerSubtitle')}
         </p>
       </div>
 
@@ -40,14 +42,14 @@ export default function RegisterPage() {
                 htmlFor="name-input"
                 className="block text-xs font-semibold uppercase tracking-wider text-slate-700"
               >
-                Full Name / Farm Name
+                {t('auth.fullNameLabel')}
               </label>
               <div className="mt-1">
                 <input
                   id="name-input"
                   type="text"
                   required
-                  placeholder="e.g. John Doe / Green Valley Farm"
+                  placeholder={t('auth.fullNamePlaceholder')}
                   className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
                 />
               </div>
@@ -58,14 +60,14 @@ export default function RegisterPage() {
                 htmlFor="reg-email"
                 className="block text-xs font-semibold uppercase tracking-wider text-slate-700"
               >
-                Email Address or Phone Number
+                {t('auth.emailOrPhoneLabel')}
               </label>
               <div className="mt-1">
                 <input
                   id="reg-email"
                   type="text"
                   required
-                  placeholder="farmer@example.com or +994..."
+                  placeholder={t('auth.emailOrPhonePlaceholder')}
                   className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
                 />
               </div>
@@ -76,14 +78,14 @@ export default function RegisterPage() {
                 htmlFor="reg-password"
                 className="block text-xs font-semibold uppercase tracking-wider text-slate-700"
               >
-                Password
+                {t('auth.passwordLabel')}
               </label>
               <div className="mt-1">
                 <input
                   id="reg-password"
                   type="password"
                   required
-                  placeholder="Create a strong password"
+                  placeholder={t('auth.passwordPlaceholder')}
                   className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-mint-500 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
                 />
               </div>
@@ -94,7 +96,7 @@ export default function RegisterPage() {
                 type="submit"
                 className="w-full rounded-lg bg-mint-600 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-mint-700 focus:outline-none focus:ring-2 focus:ring-mint-500/20"
               >
-                Create Account & Save Farm Profile
+                {t('auth.registerBtn')}
               </button>
             </div>
           </form>
@@ -105,13 +107,13 @@ export default function RegisterPage() {
               className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-800"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              Back to Home
+              {t('common.backToHome')}
             </a>
             <a
               href="/auth/login"
               className="font-medium text-mint-700 hover:text-mint-800 hover:underline"
             >
-              Already registered? Sign In
+              {t('auth.hasAccountPrompt')}
             </a>
           </div>
         </div>

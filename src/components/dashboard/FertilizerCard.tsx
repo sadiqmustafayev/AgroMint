@@ -1,8 +1,11 @@
+'use client';
+
 import React from 'react';
-import { Sparkles, AlertTriangle, ShieldCheck, Check } from 'lucide-react';
+import { Sparkles, AlertTriangle } from 'lucide-react';
 import { AgroSphereOutboundLink } from '../../types/advisory';
 import { DataBadge } from '../shared/DataBadge';
 import { AgroSphereLink } from '../shared/AgroSphereLink';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface FertilizerPrescription {
   nutrient: string;
@@ -27,6 +30,8 @@ export function FertilizerCard({
   fertilizerAdvisory,
   className = '',
 }: FertilizerCardProps) {
+  const { t } = useLanguage();
+
   return (
     <div
       className={`rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm ${className}`}
@@ -38,10 +43,10 @@ export function FertilizerCard({
           </div>
           <div>
             <h3 className="text-sm font-bold text-slate-900">
-              Fertilizer & Soil Amendment Plan
+              {t('dashboard.fertilizerTitle')}
             </h3>
             <span className="text-[11px] text-slate-500">
-              Targeted mineral nutrition and split dosage recommendations
+              {t('dashboard.fertilizerSub')}
             </span>
           </div>
         </div>
@@ -53,7 +58,7 @@ export function FertilizerCard({
       <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
         <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
         <div>
-          <span className="font-bold">Agronomic Safety Notice: </span>
+          <span className="font-bold">{t('dashboard.safeDosageNoticeTitle')} </span>
           <span className="leading-relaxed">{fertilizerAdvisory.safeDosageNotice}</span>
         </div>
       </div>
@@ -61,7 +66,7 @@ export function FertilizerCard({
       {/* Prescriptions Table / Cards */}
       <div className="mt-4 space-y-2.5">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-700">
-          Prescribed Applications:
+          {t('dashboard.prescriptionsTitle')}
         </h4>
 
         <div className="divide-y divide-slate-100 rounded-xl border border-slate-200/80 bg-white">

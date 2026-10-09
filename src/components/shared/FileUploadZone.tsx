@@ -1,5 +1,8 @@
+'use client';
+
 import React, { useState, useRef } from 'react';
 import { UploadCloud, FileText, Image as ImageIcon, X } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface FileUploadZoneProps {
   label: string;
@@ -20,6 +23,7 @@ export function FileUploadZone({
   onFilesSelected,
   className = '',
 }: FileUploadZoneProps) {
+  const { t } = useLanguage();
   const [fileList, setFileList] = useState<string[]>(initialFiles);
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -40,6 +44,10 @@ export function FileUploadZone({
     onFilesSelected(updated);
   };
 
+  const maxFilesText = (t('common.maxFilesNotice') || 'Max {max} files ({formats})')
+    .replace('{max}', String(maxFiles))
+    .replace('{formats}', formatList);
+
   return (
     <div className={`space-y-2 ${className}`}>
       <div className="flex items-center justify-between">
@@ -50,7 +58,7 @@ export function FileUploadZone({
           {label}
         </label>
         <span className="text-[11px] text-slate-500">
-          Max {maxFiles} files ({formatList})
+          {maxFilesText}
         </span>
       </div>
 
@@ -87,10 +95,10 @@ export function FileUploadZone({
         </div>
 
         <p className="mt-2 text-xs font-medium text-slate-800">
-          Click to upload or drag & drop documents
+          {t('common.clickToUpload') || 'Click to upload or drag & drop documents'}
         </p>
         <p className="mt-0.5 text-[11px] text-slate-500">
-          {description || `Supported formats: ${formatList}`}
+          {description || `${t('common.supportedFormats') || 'Supported formats:'} ${formatList}`}
         </p>
       </div>
 
