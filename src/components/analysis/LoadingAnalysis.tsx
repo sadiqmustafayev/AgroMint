@@ -5,7 +5,7 @@ import { Sprout, CheckCircle2, Loader2, BookOpen } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 
 interface LoadingAnalysisProps {
-  onComplete: () => void;
+  onComplete?: () => void;
   durationMs?: number;
   className?: string;
 }
@@ -87,15 +87,17 @@ export function LoadingAnalysis({
       });
     }, durationMs / 18);
 
-    const timeout = setTimeout(() => {
-      setProgressPct(100);
-      onComplete();
-    }, durationMs);
+    const timeout = onComplete
+      ? setTimeout(() => {
+          setProgressPct(100);
+          onComplete();
+        }, durationMs)
+      : null;
 
     return () => {
       clearInterval(interval);
       clearInterval(progressInterval);
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
     };
   }, [durationMs, onComplete, evaluationSteps.length]);
 

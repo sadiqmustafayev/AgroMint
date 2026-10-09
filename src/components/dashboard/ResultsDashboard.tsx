@@ -49,8 +49,25 @@ export function ResultsDashboard({
           />
         </div>
 
-        {/* Section Divider: Supplementary Agronomic Analyses & Details (Əlavə Məlumat Kimi) */}
-        <div className="lg:col-span-2 pt-2">
+        {/* Submitted Farm Profile Data */}
+        <div className="lg:col-span-2">
+          <FarmProfileCard profile={report.farmProfile} />
+        </div>
+
+        {/* Plant Protection & Medicine Prescriptions */}
+        <PlantProtectionCard plantProtection={report.plantProtection} />
+
+        {/* Irrigation Management */}
+        <IrrigationCard irrigation={report.irrigationAdvisory} />
+
+        {/* Uncertainties and Gaps */}
+        <UncertaintiesCard uncertainties={report.uncertaintiesAndGaps} />
+
+        {/* Scientific Citations */}
+        <CitationsCard citations={report.scientificCitations} />
+
+        {/* Section Divider: Supplementary Analyses (Ən axırda: Əlavə Təhlillər və Aqronomik Detallar) */}
+        <div className="lg:col-span-2 pt-4">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div>
               <h2 className="text-sm sm:text-base font-bold text-slate-900">
@@ -60,8 +77,8 @@ export function ResultsDashboard({
               </h2>
               <p className="text-xs text-slate-500">
                 {isAz
-                  ? 'Hava proqnozu, mineral qidalanma, suvarma və bitki mühafizəsi üzrə ətraflı göstəricilər'
-                  : 'Detailed meteorological, nutritional, irrigation, and protection parameters'}
+                  ? 'Hava proqnozu, mineral qidalanma və torpaq yaxşılaşdırma planı'
+                  : 'Detailed weather forecast and mineral fertilizer nutrition parameters'}
               </p>
             </div>
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
@@ -70,12 +87,7 @@ export function ResultsDashboard({
           </div>
         </div>
 
-        {/* Submitted Farm Profile Data */}
-        <div className="lg:col-span-2">
-          <FarmProfileCard profile={report.farmProfile} />
-        </div>
-
-        {/* Live Weather Forecast & AI Meteorological Synthesis */}
+        {/* 7 Günlük Hava Proqnozu & AI Aqronomik Nəticələri */}
         {(report.weatherData || report.weatherSynthesis) && (
           <div className="lg:col-span-2">
             <WeatherAnalysisCard
@@ -85,22 +97,10 @@ export function ResultsDashboard({
           </div>
         )}
 
-        {/* Fertilizer Advisory & AgroSphere Link */}
+        {/* Gübrələmə və Torpaq Yaxşılaşdırma Planı */}
         <div className="lg:col-span-2">
           <FertilizerCard fertilizerAdvisory={report.fertilizerAdvisory} />
         </div>
-
-        {/* Irrigation Management */}
-        <IrrigationCard irrigation={report.irrigationAdvisory} />
-
-        {/* Plant Protection & AgroSphere Link */}
-        <PlantProtectionCard plantProtection={report.plantProtection} />
-
-        {/* Uncertainties and Gaps */}
-        <UncertaintiesCard uncertainties={report.uncertaintiesAndGaps} />
-
-        {/* Scientific Citations */}
-        <CitationsCard citations={report.scientificCitations} />
       </div>
     </div>
   );
