@@ -18,3 +18,36 @@ body {
     rgb(var(--background-start-rgb));
   min-height: 100vh;
 }
+
+@media print {
+  header,
+  footer,
+  button,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  .print-page-break {
+    page-break-before: always;
+  }
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg,
+  .shadow-xl {
+    box-shadow: none !important;
+  }
+  .border {
+    border-color: #cbd5e1 !important;
+  }
+}

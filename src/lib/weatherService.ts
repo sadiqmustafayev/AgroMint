@@ -14,6 +14,8 @@ export interface SevenDayWeatherData {
   locationName: string;
   latitude: number;
   longitude: number;
+  isSimulated?: boolean;
+  sourceType?: 'live-telemetry' | 'regional-historical-model';
   daily: DailyWeatherForecast[];
   summary: {
     totalRainfallMm: number;
@@ -153,6 +155,8 @@ export async function fetch7DayWeather(
           locationName: coords.name,
           latitude: coords.lat,
           longitude: coords.lon,
+          isSimulated: false,
+          sourceType: 'live-telemetry',
           daily: days,
           summary: {
             totalRainfallMm: Math.round(totalRain * 10) / 10,
@@ -221,6 +225,8 @@ export function getFallback7DayWeather(
     locationName: coords.name,
     latitude: coords.lat,
     longitude: coords.lon,
+    isSimulated: true,
+    sourceType: 'regional-historical-model',
     daily: days,
     summary: {
       totalRainfallMm: Math.round(totalRain * 10) / 10,

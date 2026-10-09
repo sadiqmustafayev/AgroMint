@@ -8,6 +8,31 @@ import Logo from "../../../public/AgroMint_logo2.png";
 
 export function Navbar() {
   const { language, setLanguage, t } = useLanguage();
+  const [authUser, setAuthUser] = React.useState<{ organization: string; role: string; name: string } | null>(null);
+
+  React.useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const stored = window.sessionStorage.getItem('agromint_auth_user');
+        if (stored) {
+          setAuthUser(JSON.parse(stored));
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.removeItem('agromint_auth_user');
+        setAuthUser(null);
+      }
+    } catch (e) {
+      // ignore
+    }
+  };
 
   return (
     <header className="sticky top-0 z-30 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur">
@@ -75,22 +100,42 @@ export function Navbar() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <a
-              href="/auth/login"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-            >
-              <User className="w-3.5 h-3.5 text-slate-500" />
-              <span className="hidden sm:inline">{t("common.signIn")}</span>
-            </a>
-            <a
-              href="/auth/register"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-mint-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-mint-700"
-            >
-              <span className="hidden sm:inline">{t("common.register")}</span>
-              <span className="sm:hidden">+</span>
-            </a>
-          </div>
+          {authUser ? (
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex flex-col text-right">
+                <span className="text-[11px] font-bold text-slate-800 leading-tight">
+                  {authUser.organization}
+                </span>
+                <span className="text-[10px] text-slate-500 font-medium">
+                  {authUser.role}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+              >
+                {language === 'az' ? 'Çıxış' : 'Sign Out'}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <a
+                href="/auth/login"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+              >
+                <User className="w-3.5 h-3.5 text-slate-500" />
+                <span className="hidden sm:inline">{t('common.signIn')}</span>
+              </a>
+              <a
+                href="/auth/register"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-mint-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-mint-700"
+              >
+                <span className="hidden sm:inline">{t('common.register')}</span>
+                <span className="sm:hidden">+</span>
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </header>

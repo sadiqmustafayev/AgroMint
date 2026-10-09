@@ -7,11 +7,42 @@ import { useLanguage } from '../../../i18n/LanguageContext';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isAz = language === 'az';
   const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleEnterpriseSelect = (org: string, userEmail: string, role: string) => {
+    setEmail(userEmail);
+    setPassword('••••••••');
+    const user = {
+      id: `usr-${Date.now()}`,
+      email: userEmail,
+      name: userEmail.split('@')[0],
+      organization: org,
+      role,
+      token: `token-${Math.random().toString(36).substring(2)}`,
+    };
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem('agromint_auth_user', JSON.stringify(user));
+    }
+    router.push('/analyze');
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const user = {
+      id: `usr-${Date.now()}`,
+      email: email || 'agronomist@holding.az',
+      name: (email || 'agronomist').split('@')[0],
+      organization: 'Commercial Ag Holding',
+      role: 'Chief Agronomist',
+      token: `token-${Math.random().toString(36).substring(2)}`,
+    };
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem('agromint_auth_user', JSON.stringify(user));
+    }
     router.push('/analyze');
   };
 
@@ -135,6 +166,45 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+
+          {/* 1-Click Enterprise Holding Demo Accounts */}
+          <div className="mt-5 pt-4 border-t border-slate-100">
+            <span className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">
+              {isAz ? 'B2B Aqroholdinq Nümunə Girişləri' : 'B2B Holding Demo Profiles'}
+            </span>
+            <div className="space-y-1.5">
+              <button
+                type="button"
+                onClick={() =>
+                  handleEnterpriseSelect('Pasha Agri Holding', 'e.hasanov@pasha-agri.az', 'Senior Agronomist')
+                }
+                className="w-full text-left rounded-lg border border-slate-200 bg-slate-50/70 hover:bg-mint-50/80 hover:border-mint-300 p-2 text-xs transition flex items-center justify-between"
+              >
+                <div>
+                  <span className="font-semibold text-slate-800">Pasha Agri Holding</span>
+                  <span className="block text-[10px] text-slate-500">Emil Həsənov (12,500 ha) • Aran/Yevlax</span>
+                </div>
+                <span className="text-[10px] font-bold text-mint-700 bg-mint-100/80 px-2 py-0.5 rounded">
+                  {isAz ? 'Daxil ol' : 'Demo Login'}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  handleEnterpriseSelect('AzərŞəkər ASC', 'r.mammadov@azerseker.az', 'Field Lead')
+                }
+                className="w-full text-left rounded-lg border border-slate-200 bg-slate-50/70 hover:bg-mint-50/80 hover:border-mint-300 p-2 text-xs transition flex items-center justify-between"
+              >
+                <div>
+                  <span className="font-semibold text-slate-800">AzərŞəkər ASC</span>
+                  <span className="block text-[10px] text-slate-500">Rəşad Məmmədov (8,000 ha) • Şəmkir/Gəncə</span>
+                </div>
+                <span className="text-[10px] font-bold text-mint-700 bg-mint-100/80 px-2 py-0.5 rounded">
+                  {isAz ? 'Daxil ol' : 'Demo Login'}
+                </span>
+              </button>
+            </div>
+          </div>
 
           <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between text-xs">
             <a

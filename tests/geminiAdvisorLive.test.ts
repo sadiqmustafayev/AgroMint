@@ -28,9 +28,16 @@ describe('Gemini Advisor Live Generation', () => {
 
     const { report, source } = await generateGeminiAdvisoryReport(payload, weather, 'az');
 
-    expect(source).toBe('gemini');
-    expect(report.source).toBe('gemini');
-    expect(report.id).toMatch(/^agro-gemini-/);
+    const hasLiveKey = Boolean(process.env.GEMINI_API_KEY?.trim());
+    if (hasLiveKey) {
+      expect(source).toBe('gemini');
+      expect(report.source).toBe('gemini');
+      expect(report.id).toMatch(/^agro-gemini-/);
+    } else {
+      expect(source).toBe('rules-engine');
+      expect(report.source).toBe('rules-engine');
+      expect(report.id).toMatch(/^agro-report-/);
+    }
     expect(report.summaryDiagnosis).toBeTruthy();
     expect(report.identifiedProblem).toBeDefined();
     expect(report.actionSteps.length).toBeGreaterThanOrEqual(1);

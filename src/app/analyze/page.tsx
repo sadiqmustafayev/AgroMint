@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
@@ -17,6 +17,7 @@ export default function AnalyzePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [report, setReport] = useState<AgronomicAdvisoryReport | null>(null);
   const [submissionPayload, setSubmissionPayload] = useState<Partial<FarmSubmissionPayload> | null>(null);
+  const reportCache = useRef<Record<string, AgronomicAdvisoryReport>>({});
 
   useEffect(() => {
     let payload: Partial<FarmSubmissionPayload> = {};
@@ -92,17 +93,17 @@ export default function AnalyzePage() {
         })
         .then((data) => {
           clearTimeout(safetyTimeout);
-          if (data?.report) {
-            setReport(data.report);
-          } else {
-            setReport(generateMockAdvisoryReport(payload, language));
-          }
+          const finalReport = data?.report || generateMockAdvisoryReport(payload, language);
+          reportCache.current[language] = finalReport;
+          setReport(finalReport);
           setIsLoading(false);
         })
         .catch((err) => {
           console.error('Error in /api/analyze fetch:', err);
           clearTimeout(safetyTimeout);
-          setReport(generateMockAdvisoryReport(payload, language));
+          const fallbackReport = generateMockAdvisoryReport(payload, language);
+          reportCache.current[language] = fallbackReport;
+          setReport(fallbackReport);
           setIsLoading(false);
         });
 
@@ -112,9 +113,15 @@ export default function AnalyzePage() {
     }
   }, []);
 
-  // Update report reactively if user switches language on results page
+  // Update report reactively if user switches language on results page (with instant cache hit)
   useEffect(() => {
     if (submissionPayload && !isLoading) {
+      if (reportCache.current[language]) {
+        // Cached response available: prevent duplicate API call and token spend
+        setReport(reportCache.current[language]);
+        return;
+      }
+
       if (typeof window !== 'undefined' && window.location?.origin) {
         fetch('/api/analyze', {
           method: 'POST',
@@ -123,17 +130,19 @@ export default function AnalyzePage() {
         })
           .then((res) => res.json())
           .then((data) => {
-            if (data?.report) {
-              setReport(data.report);
-            } else {
-              setReport(generateMockAdvisoryReport(submissionPayload, language));
-            }
+            const resultReport = data?.report || generateMockAdvisoryReport(submissionPayload, language);
+            reportCache.current[language] = resultReport;
+            setReport(resultReport);
           })
           .catch(() => {
-            setReport(generateMockAdvisoryReport(submissionPayload, language));
+            const fallbackReport = generateMockAdvisoryReport(submissionPayload, language);
+            reportCache.current[language] = fallbackReport;
+            setReport(fallbackReport);
           });
       } else {
-        setReport(generateMockAdvisoryReport(submissionPayload, language));
+        const fallbackReport = generateMockAdvisoryReport(submissionPayload, language);
+        reportCache.current[language] = fallbackReport;
+        setReport(fallbackReport);
       }
     }
   }, [language]);

@@ -1,7 +1,7 @@
 import { FarmSubmissionPayload } from '../types/farm';
 import { AgronomicAdvisoryReport } from '../types/advisory';
 import { SevenDayWeatherData } from './weatherService';
-import { generateMockAdvisoryReport } from './mockAdvisory';
+import { generateMockAdvisoryReport, calculateDynamicHealthScore } from './mockAdvisory';
 import { retrieveAgronomicContext } from './ragService';
 
 const GEMINI_MODELS = [
@@ -29,6 +29,11 @@ export async function generateGeminiAdvisoryReport(
   }
 
   const isAz = lang === 'az';
+  const hasSoilMetrics = Boolean(
+    payload.soilMetrics &&
+      (payload.soilMetrics.ph !== undefined ||
+        payload.soilMetrics.nitrogenPpm !== undefined)
+  );
 
   const ragReferences = retrieveAgronomicContext(payload, 4);
 
@@ -60,6 +65,16 @@ You MUST integrate the 7-day weather forecast directly into your agricultural co
 3. Plant Protection & Specific Medications: MUST diagnose the primary problem (especially taking into account the user's reported problem in mainProblem such as weeds, insect pests, fungus, or chlorosis). For weeds (alaq otu), specify exact herbicide names (e.g., "Herbisid: Qlifosat 480 q/l (cərgəarası)", "Selektiv herbisid: Pendimetalin 330 EC", "2,4-D amin duzu") and provide clear step-by-step instructions on how to eradicate them! For insect pests: specify exact insecticides (e.g. "İnsektisid: İmidakloprid 200 q/l", "Asetamiprid 20 SP"). For diseases: specify exact fungicides (e.g. "Funqisid: Azoksistrobin + Difenokonazol", "Mis kuporosu / Bordos mayesi 1%").
 4. Weather Synthesis: Provide clear agronomic synthesis (headline, summary, irrigationImpact, fertilizerImpact, protectionImpact, sprayWindowRecommendation).
 5. Action Steps: Action 1 must be immediate (1-2 days) accounting for immediate weather and urgent problem intervention. Action 2 must be near-term (3-7 days). Action 3 for next growth phase.
+
+CRITICAL DOSAGE & PRESCRIPTION SAFETY GUARDRAIL:
+${hasSoilMetrics
+  ? 'Field laboratory soil metrics are verified. Provide calibrated quantitative fertilizer rates in kg/ha based on nutrient deficits and set isGuardedEstimate to false.'
+  : 'STRICT PROHIBITION: Certified laboratory soil data (N-P-K, pH) IS NOT PROVIDED in this farm profile. Under strict agronomic safety guardrails, you MUST NOT prescribe specific quantitative application rates (such as "X kg/ha" or "X kq/ha"). For "estimatedRate", provide qualitative guidance (e.g., "Laboratoriya analizi tələb olunur — Ehtiyatlı ilkin norma" in Azerbaijani or "Lab verification required prior to numeric dosing — Conservative baseline" in English) and set "isGuardedEstimate": true for all prescriptions.'}
+
+FIELD IMAGERY & VISUAL TELEMETRY:
+${payload.uploadedPhotoNames && payload.uploadedPhotoNames.length > 0
+  ? `Field scouting photos attached: ${payload.uploadedPhotoNames.join(', ')}. Ingest this visual evidence to cross-verify canopy symptoms, weed pressure, and leaf lesions in diagnosedStressors.`
+  : 'No field photographs attached. Note visual scouting requirement in actionSteps.'}
 ${ragContextBlock}
 Language Requirement:
 ${isAz ? 'ALL user-facing text, titles, descriptions, diagnoses, and recommendations MUST be in natural Azerbaijani (az).' : 'ALL user-facing text, titles, descriptions, diagnoses, and recommendations MUST be in professional English (en).'}
@@ -87,8 +102,8 @@ Respond with STRICTLY valid JSON conforming to this schema (no markdown, no back
         "nutrient": "Azot (N) / Fosfor (P) / Kalium (K)",
         "fertilizerType": "Dəqiq Gübrə Adı (Məs: Karbamid (Urea 46% N) və ya Ammofos 12-52)",
         "timing": "...",
-        "estimatedRate": "150-180 kq/ha",
-        "isGuardedEstimate": true
+        "estimatedRate": "${hasSoilMetrics ? '80-120 kg/ha' : isAz ? 'Laboratoriya analizi tələb olunur — Ehtiyatlı ilkin norma' : 'Lab verification required — Conservative baseline'}",
+        "isGuardedEstimate": ${!hasSoilMetrics}
       }
     ]
   },
@@ -206,13 +221,48 @@ Respond with STRICTLY valid JSON conforming to this schema (no markdown, no back
         continue;
       }
 
+      // 1. Calculate dynamic multi-factor health score if model defaulted to 82/74
+      const calculatedHealth = calculateDynamicHealthScore(
+        payload,
+        hasSoilMetrics,
+        weather,
+        parsed.identifiedProblem?.severity || 'moderate'
+      );
+      const overallHealthScore =
+        typeof parsed.overallHealthScore === 'number' &&
+        parsed.overallHealthScore !== 82 &&
+        parsed.overallHealthScore !== 74
+          ? parsed.overallHealthScore
+          : calculatedHealth;
+
+      // 2. Strict enforcement of dosage guardrails in code: sanitize any numeric rates if soil lab data is missing
+      let guardedPrescriptions = Array.isArray(parsed.fertilizerAdvisory?.prescriptions)
+        ? parsed.fertilizerAdvisory.prescriptions
+        : [];
+
+      if (!hasSoilMetrics && guardedPrescriptions.length > 0) {
+        guardedPrescriptions = guardedPrescriptions.map((rx: any) => {
+          const rateText = String(rx.estimatedRate || '');
+          const hasNumericRate = /\d+\s*(?:-|–|\/|\b)\s*\d*\s*(?:k[gq]\/ha|l\/ha|litr\/ha|ppm|%)/i.test(rateText);
+          return {
+            ...rx,
+            estimatedRate: hasNumericRate
+              ? (isAz
+                  ? 'Laboratoriya təsdiqi tələb olunur (Dəqiq norma dayandırılıb)'
+                  : 'Lab verification required (Quantitative rate held)')
+              : (rx.estimatedRate || (isAz ? 'Ehtiyatlı ilkin norma' : 'Conservative baseline only')),
+            isGuardedEstimate: true,
+          };
+        });
+      }
+
       // Add AgroSphere partner links and standard metadata
       const report: AgronomicAdvisoryReport = {
         id: `agro-gemini-${Date.now()}`,
         source: 'gemini',
         createdAt: new Date().toISOString(),
         farmProfile: payload as FarmSubmissionPayload,
-        overallHealthScore: typeof parsed.overallHealthScore === 'number' ? parsed.overallHealthScore : 82,
+        overallHealthScore,
         summaryDiagnosis: parsed.summaryDiagnosis,
         mainFindings: Array.isArray(parsed.mainFindings) ? parsed.mainFindings : [],
         identifiedProblem: parsed.identifiedProblem,
@@ -230,7 +280,7 @@ Respond with STRICTLY valid JSON conforming to this schema (no markdown, no back
         },
         fertilizerAdvisory: {
           safeDosageNotice: parsed.fertilizerAdvisory?.safeDosageNotice || (isAz ? 'Dozalanmanı yerli torpaq tipinə uyğunlaşdırın.' : 'Calibrate dosage to local soil texture.'),
-          prescriptions: Array.isArray(parsed.fertilizerAdvisory?.prescriptions) ? parsed.fertilizerAdvisory.prescriptions : [],
+          prescriptions: guardedPrescriptions,
           agroSphereLink: {
             title: isAz ? 'Uyğun Gübrələri AgroSphere-də İncələyin' : 'Explore Fertilizers on AgroSphere',
             description: isAz

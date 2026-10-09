@@ -4,6 +4,60 @@ import { SevenDayWeatherData } from './weatherService';
 import { getCropLabel, getStageLabel } from './cropStages';
 import { retrieveAgronomicContext } from './ragService';
 
+export function calculateDynamicHealthScore(
+  payload: Partial<FarmSubmissionPayload>,
+  hasSoilMetrics: boolean,
+  weatherData?: SevenDayWeatherData,
+  problemSeverity: 'critical' | 'moderate' | 'mild' = 'moderate'
+): number {
+  let score = 88;
+
+  if (hasSoilMetrics && payload.soilMetrics) {
+    const { ph, nitrogenPpm, salinityEc } = payload.soilMetrics;
+    if (ph !== undefined) {
+      if (ph >= 6.2 && ph <= 7.5) {
+        score += 3;
+      } else if (ph < 5.8 || ph > 8.2) {
+        score -= 9;
+      } else {
+        score -= 4;
+      }
+    }
+    if (nitrogenPpm !== undefined) {
+      if (nitrogenPpm >= 30 && nitrogenPpm <= 50) {
+        score += 2;
+      } else if (nitrogenPpm < 20) {
+        score -= 7;
+      } else if (nitrogenPpm > 65) {
+        score -= 4;
+      }
+    }
+    if (salinityEc !== undefined && salinityEc > 1.8) {
+      score -= 7;
+    }
+  } else {
+    // Penalty for unverified soil baseline
+    score -= 12;
+  }
+
+  // Meteorological stress factors
+  if (weatherData) {
+    if (weatherData.summary.hasHeatwaveRisk) score -= 5;
+    if (weatherData.summary.hasHeavyRainRisk) score -= 6;
+    if (weatherData.summary.maxWindSpeedKmH >= 22) score -= 3;
+    if (weatherData.summary.totalRainfallMm === 0 && weatherData.summary.avgMaxTemp > 30) score -= 4;
+  }
+
+  // Problem severity impact
+  if (problemSeverity === 'critical') {
+    score -= 12;
+  } else if (problemSeverity === 'moderate') {
+    score -= 5;
+  }
+
+  return Math.max(35, Math.min(96, Math.round(score)));
+}
+
 export function generateMockAdvisoryReport(
   payload: Partial<FarmSubmissionPayload>,
   lang: 'en' | 'az' = 'en',
@@ -146,16 +200,42 @@ export function generateMockAdvisoryReport(
 
   // 0 & 2. Primary Problem Diagnosis & Concrete Medicine/Fertilizer Resolution
   const problemLower = (payload.mainProblem || '').toLowerCase();
-  const isCottonBollProblem =
+  const rawCropLower = (payload.crop || '').toLowerCase();
+  const rawStageLower = (payload.growthStage || '').toLowerCase();
+  const isCottonCrop = rawCropLower.includes('cotton') || rawCropLower.includes('pambıq') || rawCropLower.includes('pambiq');
+
+  const hasBollOpeningKeywords =
     problemLower.includes('qoza') ||
     problemLower.includes('açıl') ||
     problemLower.includes('acil') ||
     problemLower.includes('defol') ||
-    problemLower.includes('yetiş') ||
-    problemLower.includes('yetis') ||
-    (problemLower.includes('pambıq') || problemLower.includes('pambiq') || problemLower.includes('cotton'));
-  const isWeedProblem = problemLower.includes('alaq') || problemLower.includes('ot') || problemLower.includes('weed');
-  const isYellowingProblem = problemLower.includes('saral') || problemLower.includes('azot') || problemLower.includes('nitrogen') || problemLower.includes('yellow');
+    problemLower.includes('dehiscence') ||
+    problemLower.includes('boll');
+
+  const isEarlyVegetativeStage =
+    rawStageLower.includes('seedling') ||
+    rawStageLower.includes('vegetative') ||
+    rawStageLower.includes('cücərmə') ||
+    rawStageLower.includes('kollanma');
+
+  // Cotton boll maturation/defoliation intervention is ONLY valid if:
+  // 1) The crop is Cotton
+  // 2) It is NOT early vegetative/seedling (never defoliate early vegetative crops!)
+  // 3) The problem explicitly describes boll opening, defoliation, or maturation stagnation
+  const isCottonBollProblem = isCottonCrop && !isEarlyVegetativeStage && hasBollOpeningKeywords;
+  const isWeedProblem =
+    problemLower.includes('alaq') ||
+    problemLower.includes('alaq ot') ||
+    problemLower.includes('yabanı ot') ||
+    problemLower.includes('weed') ||
+    /\b(ot|otlar|alaqlar)\b/i.test(problemLower);
+  const isYellowingProblem =
+    problemLower.includes('saral') ||
+    problemLower.includes('azot') ||
+    problemLower.includes('xloroz') ||
+    problemLower.includes('chlorosis') ||
+    problemLower.includes('nitrogen') ||
+    problemLower.includes('yellow');
   const isPestProblem = problemLower.includes('zərərverici') || problemLower.includes('pest') || problemLower.includes('qurd') || problemLower.includes('həşərat') || problemLower.includes('mənənə');
 
   let identifiedProblem: IdentifiedProblem = {
@@ -239,7 +319,12 @@ export function generateMockAdvisoryReport(
       uploadedDocumentNames: payload.uploadedDocumentNames || [],
       uploadedPhotoNames: payload.uploadedPhotoNames || [],
     },
-    overallHealthScore: hasSoilMetrics ? 82 : 74,
+    overallHealthScore: calculateDynamicHealthScore(
+      payload,
+      hasSoilMetrics,
+      weatherData,
+      identifiedProblem.severity
+    ),
     summaryDiagnosis: isAz
       ? `${region} bölgəsində ${crop} bitkisinin ${stage} inkişaf mərhələsi üzrə aqronomik təhlili. Əsas aşkar edilən məsələ: ${identifiedProblem.problemTitle}. ${identifiedProblem.causeAnalysis}`
       : `Field evaluation for ${crop} during the ${stage} window in ${region}. Primary observation: ${identifiedProblem.problemTitle}. ${identifiedProblem.causeAnalysis}`,
@@ -303,8 +388,12 @@ export function generateMockAdvisoryReport(
               nutrient: isAz ? 'Kalium (K2O) - Qoza Yetişdirici' : 'Potassium (K2O) - Maturation',
               fertilizerType: isAz ? 'Kalium Sulfat (50% K2O) və ya Kalium Nitrat' : 'Potassium Sulfate (50% K2O)',
               timing: isAz ? 'Yarpaqdan çiləmə (qozalara şəkər və lif axınını sürətləndirmək üçün)' : 'Foliar spray to accelerate boll opening',
-              estimatedRate: '2.5 - 3.5 kq/ha',
-              isGuardedEstimate: false,
+              estimatedRate: hasSoilMetrics
+                ? '2.5 - 3.5 kq/ha'
+                : isAz
+                ? 'Laboratoriya analizi tələb olunur — Ehtiyatlı çiləmə norması'
+                : 'Lab verification required — Conservative foliar rate',
+              isGuardedEstimate: !hasSoilMetrics,
             },
             {
               nutrient: isAz ? 'Azot (N) - QADAĞAN' : 'Nitrogen (N) - SUSPEND',

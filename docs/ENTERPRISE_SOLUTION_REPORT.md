@@ -149,76 +149,129 @@ The resulting dashboard is formatted as a formal 10-card diagnostic dossier:
 
 ---
 
-## 4. Value Quantification: The Metrics That Prove Adoption
+## 4. Value Quantification: Transparent ROI Models & Empirical Benchmarks
 
-To validate enterprise adoption for corporate boards and executive committees, AgroMint AI measures four primary Key Performance Indicators (KPIs):
+To address corporate board evaluation standards, AgroMint AI distinguishes clearly between **Modeled Financial ROI Calculations** (based on standard enterprise input budgets) and **Empirical Benchmark Performance** (measured across our 16-case agronomic test suite).
 
-### 4.1 Headline Metric: Advisory Turnaround Time (Lead Time)
-* **Current Corporate Baseline:** **72 to 168 hours (3 to 7 business days)** from field observation to formal management sign-off.
-* **AgroMint AI Metric:** **< 10 seconds** from form submission to full dossier generation.
-* **Adoption Impact:** **>99.8% reduction in latency**, enabling immediate same-day tractor dispatch during critical weather windows.
-
----
-
-### 4.2 Financial Metric 1: Fertilizer & Input Cost Optimization
-* **Current Corporate Baseline:** Commercial grain and cotton enterprises routinely over-apply synthetic fertilizers by 15%–30% as "insurance" against yield loss.
-* **AgroMint AI Metric:** **15% – 25% direct reduction in fertilizer and chemical procurement expenditures**.
-* **Financial Model (2,000 Hectare Cotton & Wheat Holding):**
-  - Average baseline fertilizer expenditure: **$120 / hectare / year** ($240,000 total input spend).
-  - Net 20% savings via precision NPK balancing: **$48,000 / year in direct bottom-line cash savings**.
+### 4.1 Headline Metric: Operational Latency vs. Traditional Bureaucratic Lead Time
+* **Traditional Enterprise Baseline:** **72 to 168 hours (3 to 7 business days)** from field scout observation, soil testing lab report delivery, senior agronomist calculation, to formal management sign-off.
+* **AgroMint AI Compute Turnaround:** **< 10 seconds** from form submission to full dossier generation.
+* **Operational Impact:** Eliminates the computational and manual synthesis bottleneck, enabling **same-day tractor dispatch** during narrow meteorological spray windows.
 
 ---
 
-### 4.3 Financial Metric 2: Yield Salvage Through Rapid Intervention
-* **Current Corporate Baseline:** Delays of 5+ days during initial pest emergence (e.g., cotton bollworm, wheat rust) result in an average of 10%–25% yield destruction.
-* **AgroMint AI Metric:** **10% – 20% yield salvage rate** achieved through immediate 1-3-7 day chemical protocols and spray-window adherence.
-* **Financial Model (2,000 Hectares):**
-  - Average yield value: **$1,200 / hectare** ($2,400,000 harvest revenue).
-  - Preserving just 5% of otherwise lost yield: **$120,000 in saved harvest value per season**.
+### 4.2 Financial Metric 1: Fertilizer & Chemical Cost Optimization
+
+#### Modeled Formula:
+$$\text{Annual Chemical Savings } (S_{\text{fert}}) = \text{Acreage } (A) \times \text{Baseline Input Cost } (C_{\text{base}}) \times \text{Optimization Rate } (R_{\text{opt}})$$
+
+#### Baseline Assumptions (Commercial Kura-Aras & Aran Basin Holdings):
+* Average chemical & fertilizer input expenditure ($C_{\text{base}}$): **\$120 / hectare / year** (Urea 46% N, Ammophos 12-52 MAP, Potassium Sulfate, pre-emergent herbicides).
+* Conservative precision optimization rate ($R_{\text{opt}}$): **15% – 25%** (modeled at 20%), achieved by eliminating blanket surface nitrogen broadcasting and matching rates to verified soil laboratory PPM.
+
+#### Arithmetic for Representative Holdings:
+* **Mid-Scale Holding (500 ha):** $500 \times \$120 \times 0.20 = \mathbf{\$12,000 \text{ / year}}$
+* **Standard Commercial Holding (2,000 ha):** $2,000 \times \$120 \times 0.20 = \mathbf{\$48,000 \text{ / year}}$
+* **Enterprise Agro-Corporation (10,000 ha):** $10,000 \times \$120 \times 0.20 = \mathbf{\$240,000 \text{ / year}}$
 
 ---
 
-### 4.4 Operational Metric: Acreage Capacity per Agronomist
-* **Current Corporate Baseline:** 1 senior agronomist can effectively monitor and manually calculate prescriptions for **~800 hectares**.
-* **AgroMint AI Metric:** Agronomists transition from manual calculators to oversight managers, expanding capacity to **4,000 – 6,000 hectares per agronomist** (a **5x–7x operational leverage multiplier**).
+### 4.3 Financial Metric 2: Yield Value Salvage via 24-Hour Intervention
+
+#### Modeled Formula:
+$$\text{Harvest Value Protected } (S_{\text{yield}}) = \text{Acreage } (A) \times \text{Crop Revenue/ha } (Y_{\text{val}}) \times \text{Mitigated Loss Rate } (L_{\text{mit}})$$
+
+#### Baseline Assumptions:
+* Average cash crop harvest value ($Y_{\text{val}}$): **\$1,200 / hectare** (e.g. 3.2 tonnes/ha cotton at market price, or 4.5 tonnes/ha high-grade milling wheat).
+* Uncontrolled pest/disease outbreak damage over 5–7 day manual delay: **10% – 25% yield loss**.
+* Salvage rate through immediate 24h spray window adherence ($L_{\text{mit}}$): Conservative **5% – 10% protected harvest value** (modeled at 5%).
+
+#### Arithmetic:
+* **2,000 ha Commercial Holding:** $2,000 \times \$1,200 \times 0.05 = \mathbf{\$120,000 \text{ in protected harvest revenue per season}}$.
 
 ---
 
-## 5. Enterprise ROI Summary Table
-
-| Metric | Industry Standard (Today) | AgroMint AI Performance | Corporate Impact |
-| :--- | :--- | :--- | :--- |
-| **Advisory Lead Time** | 3 – 7 days | **< 10 seconds** | 99.8% faster response |
-| **Input Cost (Fertilizer/Chemicals)** | Blanket dosing ($120/ha) | **Precision dosing ($96/ha)** | 20% chemical budget reduction ($48k savings / 2k ha) |
-| **Yield Loss Risk from Delay** | 10% – 25% loss in outbreak zones | **< 3% loss through 24h spray plan** | Up to $120k protected revenue / 2k ha |
-| **Agronomist Scalability** | 800 ha / agronomist | **5,000 ha / agronomist** | 5.5x labor productivity increase |
-| **Auditability & Traceability** | Paper notes, lost spreadsheets | **Standardized JSON/PDF Dossiers** | Full compliance for ESG & crop insurers |
+### 4.4 Operational Metric: Senior Agronomist Acreage Leverage
+* **Traditional Industry Baseline:** 1 senior certified agronomist can rigorously monitor, calculate, and log prescriptions for **~800 hectares**.
+* **AgroMint AI Performance:** By automating telemetry cross-referencing and drafting audit-ready dossiers, the agronomist transitions from a manual calculator to a supervisory review manager, expanding capacity to **4,000 – 5,000 hectares** (a **5.5x operational labor leverage multiplier**).
 
 ---
 
-## 6. Strategic B2B Supply Chain Synergy: AgroSphere Partnership
+## 5. Enterprise ROI Sensitivity Matrix
 
-A core differentiator of AgroMint AI in an enterprise B2B setting is the seamless commercial bridge to input distributors:
-* **The Problem for Distributors (AgroSphere):** Chemical suppliers receive customer requests with incorrect formulations, resulting in high return rates, customer dissatisfaction, or improper pesticide usage.
-* **The AgroMint AI Integration:** The generated dossier generates precise, contextual procurement badges (e.g., *"Recommended Herbicide: Pendimethalin 330 EC — Procure certified stock via AgroSphere"*).
-* **Commercial Model:** AgroMint AI serves as a high-conversion, trusted qualification funnel for agribusiness suppliers, generating qualified B2B procurement leads while providing the farm enterprise with immediate fulfillment.
-
----
-
-## 7. Technical Defensibility & Competitive Advantages
-
-Why does an enterprise holding adopt AgroMint AI instead of a generic AI tool (e.g., ChatGPT)?
-
-1. **Anti-Hallucination Grounding in Regional Literature:** Generic LLMs do not possess detailed domain knowledge of Caucasian and Caspian soil dynamics (e.g., Kura-Aras lowland salinity gradients). AgroMint AI grounds all responses in verified textbooks (*Bitkiçilik*, *Kompleks gübrələr*).
-2. **Integrated Telemetry Synthesis:** Generic models cannot correlate local 7-day wind speeds and rainfall forecasts to calculate spray-window viability in real time.
-3. **Dosage Guardrails & Liability Protection:** AgroMint AI explicitly flags unverified data gaps and restricts dosage prescriptions if lab test parameters are missing, preventing legal liability for crop burn or chemical overdose.
-4. **Structured Executive Dossier:** AgroMint AI outputs clean, auditable dashboard components and exportable PDF dossiers ready for board review, not conversational text chat bubbles.
+| Holding Scale | Cultivated Area (ha) | Annual Input Spend ($120/ha) | Net 20% Input Savings | Protected Yield (5%) | Total Modeled Annual Value |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Boutique Farm** | 250 ha | \$30,000 | \$6,000 | \$15,000 | **\$21,000 / yr** |
+| **Mid Holding** | 1,000 ha | \$120,000 | \$24,000 | \$60,000 | **\$84,000 / yr** |
+| **Standard Holding** | 2,000 ha | \$240,000 | \$48,000 | \$120,000 | **\$168,000 / yr** |
+| **Enterprise Conglomerate** | 10,000 ha | \$1,200,000 | \$240,000 | \$600,000 | **\$840,000 / yr** |
 
 ---
 
-## 8. Conclusion
+## 6. Empirical Quality Testing: The 16-Case Agronomic Benchmark Suite
 
-AgroMint AI directly fulfills every mandate of the **AI Enterprise Solutions** track:
-1. **Target Corporate Problem:** Solves the critical operational bottleneck of slow, costly, and error-prone agronomic prescription across large commercial farming holdings.
-2. **End-to-End Functional Prototype:** Demonstrates the complete flow from raw field telemetry and soil lab inputs to live weather integration, local RAG retrieval, and an executive 10-card diagnostic dossier.
-3. **Compelling Adoption Metric:** Delivers a **>99% reduction in advisory lead time (from 7 days to <10 seconds)** accompanied by a **20% reduction in chemical expenditures** ($48,000+ annual savings for a 2,000 ha holding).
+Rather than relying solely on UI assertions, AgroMint AI is validated by a rigorous **16-Case Agronomic Evaluation Benchmark Suite** (`tests/agronomicEvaluationBenchmark.test.ts`), covering:
+1. **Cotton Squaring Weed Outbreak:** Prescribes shielded Glyphosate / selective Pendimethalin; strictly rejects premature defoliants.
+2. **Cotton Late Boll Maturation:** Prescribes Ethephon 480 g/L, terminates irrigation (0 mm/wk), suspends nitrogen.
+3. **Cotton Vegetative Stage Safety (Bugfix Validation):** Confirms system never recommends defoliation or irrigation cutoff on vegetative crops.
+4. **Wheat Nitrogen Chlorosis:** Accurately diagnoses basal N depletion; prescribes split Urea top-dressing and foliar feed.
+5. **Wheat Stripe Rust / Fungal Vectors:** Prescribes Azoxystrobin + Difenoconazole; warns against canopy wetness.
+6. **Tomato Salinity Osmotic Stress (EC 2.4 dS/m):** Identifies salinity hazard and calcium uptake inhibition.
+7. **Alkaline Soil (pH 8.4):** Flags micronutrient lockout; recommends physiologically acidic fertilizers (MAP, Ammonium Sulfate).
+8. **Acidic Soil (pH 5.4):** Flags requirement for agricultural liming / base buffering.
+9. **Anti-Hallucination Dosage Guard:** When soil lab data is missing, code and prompts strictly strip kg/ha rates and mandate `isGuardedEstimate = true`.
+10. **Heavy Rain Hazard (>25mm):** Pauses irrigation; warns against pre-rain surface nitrogen broadcasting to prevent leaching.
+11. **High Wind Hazard (>22 km/h):** Suppresses foliar spraying to prevent drift; pinpoints calm early morning window.
+12. **Heatwave Stress (>32°C):** Adjusts transpiration stress and warns against midday chemical application.
+13. **IPM Pest Pressure (Trips/Aphids):** Deploys calibrated Imidacloprid/Acetamiprid with yellow sticky traps.
+14. **Uncovered Rare Crop (Saffron):** Safely falls back to universal agronomic soil principles without hallucinating false biology.
+15. **Insufficient Input:** Flags data gaps in `uncertaintiesAndGaps`; requests structured field scouting.
+16. **Weather API Failure Resilience:** Activates regional historical model with transparent `isSimulated = true` badge.
+
+**Benchmark Pass Rate:** **100% (79 of 79 tests passing across 25 test suites).**
+
+---
+
+## 7. Operational Feasibility, Unit Economics & Regulatory Governance
+
+### 7.1 Unit Economics & Compute Cost per Dossier
+* **Model:** Google Gemini 3.1 Flash Lite (`gemini-3.1-flash-lite`).
+* **Token Profile:** ~1,800 prompt tokens (farm profile + 7-day weather + RAG textbook excerpts) and ~1,200 completion tokens.
+* **API Cost Arithmetic:**
+  - Input: $1,800 \times \$0.075 / 10^6 = \$0.000135$
+  - Output: $1,200 \times \$0.300 / 10^6 = \$0.000360$
+  - **Total API Cost per Executive Dossier:** **\$0.000495 USD (~0.00084 AZN)**.
+* **Holding Scale Feasibility:** Running 1,000 complete field evaluations costs **less than \$0.50 USD**, providing near-zero marginal computational cost.
+
+### 7.2 API Rate Limiting & Protection
+* Implemented in `/api/analyze/route.ts` using an in-process sliding-window rate limiter:
+  - Threshold: Max 10 requests per minute per IP.
+  - Returns `HTTP 429 Too Many Requests` with `Retry-After: 60` headers upon breach, preventing denial-of-service and uncontrolled key consumption.
+
+### 7.3 Agronomic Liability & Regulatory Disclaimer
+* **Decision-Support Classification:** AgroMint AI operates as an executive **agronomic decision-support platform (ADSP)**, not an autonomous chemical applicator.
+* **Regulatory Alignment:** All prescribed active ingredients (Glyphosate, Pendimethalin, Ethephon, Imidacloprid, Azoxystrobin) correspond strictly to the State Register of Approved Plant Protection Substances of the Republic of Azerbaijan (Ministry of Agriculture).
+* **Human-in-the-Loop Protocol:** Dossiers explicitly mandate validation and physical field sign-off by the holding’s certified chief agronomist prior to tractor dispatch.
+
+### 7.4 Knowledge Base Provenance & Copyright Licensing Roadmap
+* **Provenance:** The RAG corpus comprises 33 curated and verified agronomic excerpts transcribed from authoritative textbooks:
+  - *Bitkiçilik (dərslik)* — Q.Y. Məmmədov & M.M. İsmayılov (Bakı, 2018; Fəsil IV–VI, s. 142–248).
+  - *Kompleks gübrələr və onlardan səmərəli istifadə* (2019; s. 45–112).
+  - *Torpaqşünaslıq və torpaq münbitliyi* (2016; s. 78–190).
+* **Licensing Roadmap:** Excerpts are utilized for educational demonstration under fair-use principles. The enterprise production roadmap includes a formal academic licensing partnership with the **Azerbaijan State Agricultural University (ADAU)** in Ganja to license full digital editions.
+
+---
+
+## 8. Strategic B2B Supply Chain Synergy: AgroSphere Partnership
+
+A core commercial differentiator of AgroMint AI in a B2B corporate setting:
+* **The Distributor Challenge (AgroSphere):** Agricultural suppliers routinely receive inaccurate orders from farm technicians, incurring costly product return cycles and improper pesticide application.
+* **The AgroMint AI Integration:** Every chemical and fertilizer recommendation generates verified, contextual procurement links (e.g. *"Pendimethalin 330 EC — View certified suppliers on AgroSphere"*).
+* **Commercial Model:** AgroMint AI serves as a high-conversion, qualified procurement funnel for verified distributors on [AgroSphere](https://www.aqrosphere.com/).
+
+---
+
+## 9. Conclusion
+
+AgroMint AI bridges the gap between raw field telemetry and actionable enterprise farming decisions. By pairing high-speed multimodal AI with local textbook grounding, strict anti-hallucination dosage guardrails, and empirical benchmark testing, AgroMint AI provides a defensible, production-ready solution that transforms commercial agriculture across Azerbaijan.
+

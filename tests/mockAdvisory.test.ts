@@ -48,5 +48,33 @@ describe('generateMockAdvisoryReport', () => {
 
     expect(report.fertilizerAdvisory.safeDosageNotice).toContain('Caution');
     expect(report.uncertaintiesAndGaps.some(g => g.toLowerCase().includes('soil'))).toBe(true);
+    // Dosage guardrail: every prescription must be marked guarded when soil metrics are omitted
+    expect(report.fertilizerAdvisory.prescriptions.every(p => p.isGuardedEstimate)).toBe(true);
+  });
+
+  it('agronomically discriminates vegetative cotton from late boll maturation (prohibits premature defoliation)', () => {
+    // Adversarial scenario: vegetative cotton with query containing "cotton"
+    const vegReport = generateMockAdvisoryReport({
+      region: 'Aran',
+      crop: 'Cotton',
+      growthStage: 'Vegetative Branching',
+      mainProblem: 'General health checkup for cotton crop canopy'
+    });
+
+    // Must NOT trigger aggressive boll opening defoliants or terminate irrigation during vegetative growth
+    expect(vegReport.identifiedProblem?.problemTitle).not.toContain('Delayed Cotton Boll');
+    expect(vegReport.irrigationAdvisory.waterRequirementMmPerWeek).toBeGreaterThan(0);
+    expect(vegReport.plantProtection.specificTreatments?.[0]?.medicineName).not.toContain('Defoliant');
+
+    // Late maturation stage with explicit boll opening delay
+    const matureReport = generateMockAdvisoryReport({
+      region: 'Aran',
+      crop: 'Cotton',
+      growthStage: 'Boll Opening & Defoliation',
+      mainProblem: 'Pambıq qozaları gec açılır və sahədə yaşıl kütlə çoxdur'
+    }, 'az');
+
+    expect(matureReport.identifiedProblem?.problemTitle).toContain('Qozaların Açılması');
+    expect(matureReport.irrigationAdvisory.waterRequirementMmPerWeek).toBe(0);
   });
 });

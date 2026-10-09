@@ -61,10 +61,17 @@ export function WeatherAnalysisCard({
                   ? '7 Günlük Hava Proqnozu & AI Aqronomik Nəticələri'
                   : '7-Day Weather Forecast & AI Agronomic Conclusions'}
               </h3>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100/80 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
-                <Sparkles className="h-3 w-3" />
-                {isAz ? 'Canlı İnteqrasiya' : 'Live Integrated'}
-              </span>
+              {weatherData?.isSimulated ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100/90 border border-amber-200 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+                  <AlertTriangle className="h-3 w-3 text-amber-600" />
+                  {isAz ? 'Regional Tarixi Model (Simulyasiya)' : 'Regional Historical Baseline (Simulated Fallback)'}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100/80 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                  <Sparkles className="h-3 w-3" />
+                  {isAz ? 'Canlı Open-Meteo Telemetriyası' : 'Live Open-Meteo Telemetry'}
+                </span>
+              )}
             </div>
             <p className="text-xs text-slate-500">
               {weatherData
