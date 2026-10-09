@@ -17,21 +17,28 @@ interface CitationsCardProps {
 }
 
 export function CitationsCard({ citations, className = '' }: CitationsCardProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isAz = language === 'az';
 
   return (
     <div
       className={`rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm ${className}`}
     >
-      <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-100 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-mint-50 text-mint-700">
             <BookOpen className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-900">
-              {t('dashboard.citationsTitle')}
-            </h3>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm font-bold text-slate-900">
+                {t('dashboard.citationsTitle')}
+              </h3>
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-200">
+                <BookOpen className="w-3 h-3 text-emerald-600" />
+                <span>{isAz ? 'RAG • Yerli Elmi Ədəbiyyat' : 'RAG • Local Scientific Literature'}</span>
+              </span>
+            </div>
             <span className="text-[11px] text-slate-500">
               {t('dashboard.citationsSub')}
             </span>
