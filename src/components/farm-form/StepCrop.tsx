@@ -23,9 +23,14 @@ export function StepCrop({
 
   const handleCropSelect = (crop: string) => {
     onCropChange(crop);
-    // Auto-select first stage or clear if crop changes
+    if (!crop) {
+      onStageChange('');
+      return;
+    }
     const newStages = getCropGrowthStages(crop);
-    if (newStages.length > 0 && !newStages.includes(selectedStage)) {
+    if (newStages.length === 0) {
+      onStageChange('');
+    } else if (!newStages.includes(selectedStage)) {
       onStageChange(newStages[0]);
     }
   };

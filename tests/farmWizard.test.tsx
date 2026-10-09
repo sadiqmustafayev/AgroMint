@@ -50,4 +50,41 @@ describe('FarmWizard Orchestrator', () => {
       })
     );
   });
+
+  it('clears uploaded document names from submission payload when soil mode is switched to manual', () => {
+    const handleSubmit = vi.fn();
+    render(<FarmWizard onSubmit={handleSubmit} />);
+
+    // Step 1
+    fireEvent.change(screen.getByLabelText(/Agricultural Region/i), { target: { value: 'Aran' } });
+    fireEvent.click(screen.getByRole('button', { name: /Next Step/i }));
+
+    // Step 2
+    fireEvent.change(screen.getByLabelText(/Current Crop/i), { target: { value: 'Wheat' } });
+    fireEvent.click(screen.getByRole('button', { name: /Next Step/i }));
+
+    // Step 3: In upload mode, upload a file
+    const fileInput = screen.getByLabelText(/Upload Soil Lab Report/i);
+    const testFile = new File(['dummy'], 'soil-sheet.pdf', { type: 'application/pdf' });
+    fireEvent.change(fileInput, { target: { files: [testFile] } });
+
+    // Then switch to manual data entry mode
+    const manualBtn = screen.getByRole('button', { name: /Manual Data Entry/i });
+    fireEvent.click(manualBtn);
+
+    fireEvent.click(screen.getByRole('button', { name: /Next Step/i }));
+
+    // Step 4
+    fireEvent.change(screen.getByLabelText(/Main Agricultural Problem or Question/i), {
+      target: { value: 'Soil test query' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Analyze My Farm/i }));
+
+    expect(handleSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        soilMode: 'manual',
+        uploadedDocumentNames: [],
+      })
+    );
+  });
 });

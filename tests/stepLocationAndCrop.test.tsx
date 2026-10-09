@@ -43,4 +43,25 @@ describe('StepLocation and StepCrop Components', () => {
     fireEvent.change(stageSelect, { target: { value: 'Grain Filling / Maturation' } });
     expect(handleStageChange).toHaveBeenCalledWith('Grain Filling / Maturation');
   });
+
+  it('resets growth stage to empty when deselecting crop', () => {
+    const handleCropChange = vi.fn();
+    const handleStageChange = vi.fn();
+
+    render(
+      <StepCrop
+        selectedCrop="Wheat"
+        selectedStage="Vegetative / Tillering"
+        previousCrop=""
+        onCropChange={handleCropChange}
+        onStageChange={handleStageChange}
+        onPreviousCropChange={() => {}}
+      />
+    );
+
+    const cropSelect = screen.getByLabelText(/Current Crop/i);
+    fireEvent.change(cropSelect, { target: { value: '' } });
+
+    expect(handleStageChange).toHaveBeenCalledWith('');
+  });
 });

@@ -112,7 +112,7 @@ export function FarmWizard({
       soilType: soilType as any,
       soilMode,
       soilMetrics: soilMode === 'manual' ? soilMetrics : undefined,
-      uploadedDocumentNames: uploadedDocs,
+      uploadedDocumentNames: soilMode === 'upload' ? uploadedDocs : [],
       irrigationMethod: irrigationMethod as any,
       waterSource: waterSource as any,
       mainProblem,
